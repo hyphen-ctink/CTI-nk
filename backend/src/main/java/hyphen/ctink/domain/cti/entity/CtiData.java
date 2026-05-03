@@ -6,12 +6,14 @@ import hyphen.ctink.domain.platform.CollectionPlatform;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
+@Builder
 @Table(name = "cti_data")
 public class CtiData {
     @Id
@@ -30,6 +32,9 @@ public class CtiData {
 
     @Column(name = "source_url")
     private String sourceUrl;
+
+    @Column(name = "raw_data", columnDefinition = "TEXT")
+    private String rawData;
 
     @Column(name = "attack_type")
     @Enumerated(EnumType.STRING)
