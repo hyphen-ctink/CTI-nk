@@ -6,15 +6,15 @@ import hyphen.ctink.domain.platform.CollectionPlatform;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Entity
 @Builder
 @Table(name = "cti_data")
+@NoArgsConstructor
+@AllArgsConstructor
 public class CtiData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

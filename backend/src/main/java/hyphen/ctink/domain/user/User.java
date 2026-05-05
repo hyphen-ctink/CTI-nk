@@ -3,14 +3,16 @@ package hyphen.ctink.domain.user;
 import hyphen.ctink.domain.user.enums.Role;
 import hyphen.ctink.domain.user.enums.UserStatus;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "user")
 public class User {
     @Id
@@ -25,6 +27,9 @@ public class User {
 
     @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
+    private String organization;
 
     @Column(nullable = false)
     private String position;
