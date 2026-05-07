@@ -319,9 +319,27 @@ def _snort_grammar_check(rule_content: str) -> Tuple[str, str]:
 
 
 def _yara_grammar_check(rule_content: str) -> Tuple[str, str]:
+    yarac_bin = _which("yarac")
+
+    if yarac_bin:
+        with tempfile.TemporaryDirectory(prefix="ctink_yara_grammar_") as workdir:
+            rule_path = os.path.join(workdir, "rule.yar")
+            compiled_path = os.path.join(workdir, "compiled_rule.yarc")
+
+            _write_text(rule_path, rule_content + "\n")
+
+            cmd = [yarac_bin, rule_path, compiled_path]
+            code, stdout, stderr = _run_command(cmd, timeout=COMMAND_TIMEOUT)
+
+            if code == 0:
+                return "success", "-"
+
+            return "fail", (stderr or stdout).strip() or "yara grammar check failed"
+
     yara_bin = _which("yara")
+
     if not yara_bin:
-        return "fail", "yara command not found"
+        return "fail", "yara/yarac command not found"
 
     with tempfile.TemporaryDirectory(prefix="ctink_yara_grammar_") as workdir:
         rule_path = os.path.join(workdir, "rule.yar")
@@ -333,10 +351,15 @@ def _yara_grammar_check(rule_content: str) -> Tuple[str, str]:
         cmd = [yara_bin, rule_path, target_path]
         code, stdout, stderr = _run_command(cmd, timeout=COMMAND_TIMEOUT)
 
-        if code in (0, 1):
+        feedback = (stderr or stdout).strip()
+
+        if feedback:
+            return "fail", feedback
+
+        if code == 0:
             return "success", "-"
 
-        return "fail", (stderr or stdout).strip() or "yara grammar check failed"
+        return "fail", "yara grammar check failed"
 
 
 def _import_scapy():
@@ -923,31 +946,16 @@ def rule_validation_node(state: Dict[str, Any]) -> Dict[str, Any]:
 
 if __name__ == "__main__":
     test_input = {
-        "rule_type": "snort",
-        "ioc_list": [
-            {
-                "ioc_type": "ip",
-                "ioc_value": "192.168.1.1",
-            },
-            {
-                "ioc_type": "domain",
-                "ioc_value": "mallllwwwwaaarree.com",
-            }
-        ],
-        "rule_content": 'alert icmp 192.168.1.1 any -> any any (msg:"CTI-NK test malicious ip"; sid:1000001; rev:1;)',
+  "rule_type": "yara",
+  "ioc_list": [
+    {
+      "ioc_type": "hash",
+      "ioc_value": "lksdjflkjsdf9w3roiw3rouowruwo3233wr3"
     }
-    # test_input = {
-    #     "rule_type": "yara",
-    #     "ioc_list": [
-    #         {
-    #             "ioc_type": "hash",
-    #             "ioc_value": "7097ac173c2b99772ed4080c0358b007b1c2349203dce4945cb615789d81af30",
-    #         }
-    #     ],
-    #     "rule_content": 'import "hash"\n\nrule CTI_NK_Hash_Test_F19A8BD4 {\n    meta:\n        description = "CTI-NK YARA rule for hash IoC validation test"\n        hash = "7097ac173c2b99772ed4080c0358b007b1c2349203dce4945cb615789d81af30"\n    condition:\n        hash.sha256(0, filesize) == "7097ac173c2b99772ed4080c0358b007b1c2349203dce4945cb615789d81af30"\n}',
-    # }
+  ],
+  "rule_content": "import \"hash\"\n\nrule CTI_NK_YARA_One_Hash_Invalid_Format {\n    condition:\n        hash.sha256(0, filesize) == \"lksdjflkjsdf9w3roiw3rouowruwo3233wr3\"\n}"
+}
 
     result = validate_detection_rule(test_input)
     print(json.dumps(result, ensure_ascii=False, indent=2))
-
 
