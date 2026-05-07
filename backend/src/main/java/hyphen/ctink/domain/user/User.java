@@ -56,4 +56,13 @@ public class User {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    public void increaseLoginAttempts() {
+        this.loginAttempts++;
+    }
+
+    public void saveLastLoginAt() {
+        this.loginAttempts = 0;
+        this.lastLoginAt = LocalDateTime.now();
+    }
 }
