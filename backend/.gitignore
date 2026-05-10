@@ -1,0 +1,21 @@
+# Mac
+.DS_Store
+
+# Spring / Gradle
+build/
+.gradle/
+*.log
+
+# IntelliJ
+.idea/
+*.iml
+
+# Python
+__pycache__/
+*.pyc
+
+# 환경파일
+.env
+
+# 기타
+node_modules/
