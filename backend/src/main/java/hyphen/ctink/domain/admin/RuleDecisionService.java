@@ -2,7 +2,7 @@ package hyphen.ctink.domain.admin;
 
 import hyphen.ctink.domain.log.notification.NotificationLogRepository;
 import hyphen.ctink.domain.log.notification.enums.Decision;
-import hyphen.ctink.domain.admin.dto.RuleDecisionRequestDTO;
+import hyphen.ctink.domain.admin.dto.DecisionRequestDTO;
 import hyphen.ctink.domain.rule.DetectionRuleRepository;
 import hyphen.ctink.domain.rule.entity.DetectionRule;
 import hyphen.ctink.domain.rule.enums.RuleStatus;
@@ -20,7 +20,7 @@ public class RuleDecisionService {
     private final NotificationLogRepository notificationLogRepository;
 
     @Transactional
-    public Decision decideRule(Long ruleId, RuleDecisionRequestDTO req) {
+    public Decision decideRule(Long ruleId, DecisionRequestDTO req) {
         DetectionRule rule = detectionRuleRepository.findById(ruleId)
                 .orElseThrow();
 

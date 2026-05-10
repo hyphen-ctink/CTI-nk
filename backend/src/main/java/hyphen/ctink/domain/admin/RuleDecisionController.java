@@ -1,8 +1,8 @@
 package hyphen.ctink.domain.admin;
 
 import hyphen.ctink.domain.log.notification.enums.Decision;
-import hyphen.ctink.domain.admin.dto.RuleDecisionRequestDTO;
-import hyphen.ctink.domain.admin.dto.RuleDecisionResponseDTO;
+import hyphen.ctink.domain.admin.dto.DecisionRequestDTO;
+import hyphen.ctink.domain.admin.dto.DecisionResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,11 +14,11 @@ public class RuleDecisionController {
     private final RuleDecisionService ruleDecisionService;
 
     @PatchMapping("/{ruleId}/decision")
-    public RuleDecisionResponseDTO decideRule(
+    public DecisionResponseDTO decideRule(
             @PathVariable Long ruleId,
-            @RequestBody RuleDecisionRequestDTO req
+            @RequestBody DecisionRequestDTO req
             ) {
         Decision decision = ruleDecisionService.decideRule(ruleId, req);
-        return new RuleDecisionResponseDTO(decision.getMessage());
+        return new DecisionResponseDTO(decision.getMessage());
     }
 }

@@ -4,6 +4,6 @@ import hyphen.ctink.domain.log.notification.enums.Decision;
 import lombok.Getter;
 
 @Getter
-public class RuleDecisionRequestDTO {
+public class DecisionRequestDTO {
     private Decision decision;
 }

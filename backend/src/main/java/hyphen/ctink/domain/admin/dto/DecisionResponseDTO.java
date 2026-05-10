@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class RuleDecisionResponseDTO {
+public class DecisionResponseDTO {
     private String message;
 }

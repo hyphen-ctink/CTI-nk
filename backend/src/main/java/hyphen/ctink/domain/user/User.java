@@ -61,8 +61,20 @@ public class User {
         this.loginAttempts++;
     }
 
+    public void updateLoginAttempts() {
+        this.loginAttempts = 0;
+    }
+
     public void saveLastLoginAt() {
         this.loginAttempts = 0;
         this.lastLoginAt = LocalDateTime.now();
+    }
+
+    public void updateStatus(UserStatus status) {
+        this.userStatus = status;
+    }
+
+    public void updateRole(Role role) {
+        this.role = role;
     }
 }
