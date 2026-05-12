@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
 @EnableScheduling
 public class CollectorSchedular {
 
-    private final CollectorService collectorService;
+    private final CollectorSchedularService schedularService;
 
-    @Scheduled(cron = "0 0 3 * * MON")
+    @Scheduled(cron = "0 0 * * * *")
     public void run() {
-        collectorService.collect(1L);
+        schedularService.runCollection();
     }
 }

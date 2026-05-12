@@ -33,15 +33,4 @@ public class CollectorService {
 
         producer.send(message);
     }
-
-    public void testSend() {
-        CollectorJobDTO message = new CollectorJobDTO(
-                "test-123",
-                3L,
-                "df049e3f62dcde2601debb5015554c92d7eb6d10",
-                LocalDateTime.parse("2025-04-26T09:00:00")
-        );
-
-        producer.send(message);
-    }
 }
