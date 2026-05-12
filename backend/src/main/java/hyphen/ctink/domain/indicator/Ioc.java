@@ -1,5 +1,7 @@
 package hyphen.ctink.domain.indicator;
 
+import hyphen.ctink.domain.cti.CtiPlatformConverter;
+import hyphen.ctink.domain.cti.enums.CtiPlatform;
 import hyphen.ctink.domain.indicator.enums.IoCStatus;
 import hyphen.ctink.domain.indicator.enums.IocType;
 import hyphen.ctink.domain.indicator.enums.TrustLevel;
@@ -8,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -18,7 +21,9 @@ public class Ioc {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // platform_name
+    @Convert(converter = CtiPlatformConverter.class)
+    @Column(name = "platform_name")
+    private Set<CtiPlatform> platformName;
 
     @Column(name = "ioc_type")
     @Enumerated(EnumType.STRING)
@@ -43,4 +48,16 @@ public class Ioc {
     @Column(name = "ioc_status")
     @Enumerated(EnumType.STRING)
     private IoCStatus ioCStatus;
+
+    public void updateTrustLevel(TrustLevel trustLevel) {
+        this.trustLevel = trustLevel;
+    }
+
+    public void updateMispConfirmed(Boolean confirmed) {
+        this.mispConfirmed = confirmed;
+    }
+
+    public void updateVirustotalConfirmed(Boolean confirmed) {
+        this.virustotalConfirmed = confirmed;
+    }
 }
