@@ -1,0 +1,20 @@
+<svg width="100%" viewBox="55 15 240 245" xmlns="http://www.w3.org/2000/svg">
+<path d="M175,62 Q198,62 203,84 Q207,100 196,112 Q191,118 191,126 L159,126 Q159,118 154,112 Q143,100 147,84 Q152,62 175,62 Z" fill="#112D4E"/>
+<rect x="162" y="126" width="26" height="7" rx="2" fill="#3F72AF"/>
+<rect x="164" y="133" width="22" height="7" rx="2" fill="#3F72AF"/>
+<path d="M169,139 Q175,145 175,145 Q175,145 181,139" fill="none" stroke="#3F72AF" stroke-width="2" stroke-linecap="round"/>
+<circle cx="167" cy="90" r="3" fill="#3F72AF"/>
+<circle cx="175" cy="82" r="3" fill="#3F72AF"/>
+<circle cx="183" cy="90" r="3" fill="#3F72AF"/>
+<circle cx="175" cy="98" r="3" fill="#3F72AF"/>
+<circle cx="167" cy="106" r="2" fill="#DBE2EF"/>
+<circle cx="183" cy="106" r="2" fill="#DBE2EF"/>
+<line x1="167" y1="90" x2="175" y2="82" stroke="#DBE2EF" stroke-width="1"/>
+<line x1="175" y1="82" x2="183" y2="90" stroke="#DBE2EF" stroke-width="1"/>
+<line x1="183" y1="90" x2="175" y2="98" stroke="#DBE2EF" stroke-width="1"/>
+<line x1="175" y1="98" x2="167" y2="90" stroke="#DBE2EF" stroke-width="1"/>
+<line x1="167" y1="90" x2="167" y2="106" stroke="#3F72AF" stroke-width="1" stroke-dasharray="2,2"/>
+<line x1="183" y1="90" x2="183" y2="106" stroke="#3F72AF" stroke-width="1" stroke-dasharray="2,2"/>
+<text x="175" y="176" font-family="Montserrat,sans-serif" font-weight="800" font-size="20" fill="#112D4E" text-anchor="middle" letter-spacing="-0.5">CTI<tspan fill="#3F72AF">-nk</tspan></text>
+<text x="175" y="193" font-family="Montserrat,sans-serif" font-weight="400" font-size="8" letter-spacing="2" fill="#7A92AE" text-anchor="middle">THINK · LINK · INK</text>
+</svg>
