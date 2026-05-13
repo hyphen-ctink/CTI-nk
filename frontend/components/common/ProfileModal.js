@@ -10,9 +10,9 @@ import api from '@/lib/api';
 // status 값은 active만 실제 노출됨
 // (pending / inactive / locked 계정은 로그인 불가 → 이 모달 진입 불가)
 const STATUS_STYLE = {
-  active:   { label: '활성',   color: '#0F6E56', backgroundColor: 'rgba(15,110,86,0.10)'  },
-  inactive: { label: '비활성', color: 'var(--ctink-text-muted)', backgroundColor: 'rgba(0,0,0,0.06)' },
-  locked:   { label: '잠금',   color: '#A32D2D', backgroundColor: 'rgba(163,45,45,0.10)' },
+  ACTIVE:   { label: '활성',   color: '#0F6E56', backgroundColor: 'rgba(15,110,86,0.10)'  },
+  INACTIVE: { label: '비활성', color: 'var(--ctink-text-muted)', backgroundColor: 'rgba(0,0,0,0.06)' },
+  LOCKED:   { label: '잠금',   color: '#A32D2D', backgroundColor: 'rgba(163,45,45,0.10)' },
 };
 
 // ─── [TODO] 백엔드 연동 시 아래 목업 데이터 블록 전체 제거 ──────────────────
@@ -23,7 +23,7 @@ const MOCK_PROFILE = {
   position:      '보안 담당자',
   email:         'hong@ctink.com',
   phone:         '010-1234-5678',
-  status:        'active',
+  status:        'ACTIVE',
   last_login_at: '2025-04-01T09:00:00',
 };
 // ─── [TODO] 백엔드 연동 시 위 목업 데이터 블록 전체 제거 ────────────────────
@@ -63,10 +63,11 @@ export default function ProfileModal({ onClose }) {
 
   useEffect(() => {
     // ── [TODO] 백엔드 연동 시 아래 목업 블록 제거 후 실제 API 블록 주석 해제 ──
-    setTimeout(() => {
-      setProfile(MOCK_PROFILE);
-      setLoading(false);
-    }, 300);
+  const timer = setTimeout(() => {
+    setProfile(MOCK_PROFILE);
+    setLoading(false);
+  }, 300);
+  return () => clearTimeout(timer);
     // ── [TODO] 백엔드 연동 시 위 목업 블록 제거 후 아래 실제 API 블록 주석 해제 ─
 
     // ── 실제 API 호출 (백엔드 연동 시 주석 해제) ─────────────────────────────
@@ -75,7 +76,7 @@ export default function ProfileModal({ onClose }) {
     //   .catch((err) => {
     //     if (err.response?.status === 401) {
     //       // 세션 만료 또는 미인증 → 로그인 페이지로 리다이렉트
-    //       router.replace('/login')
+    //       router.push('/login');
     //     } else {
     //       setError('프로필 정보를 불러오는 데 실패했습니다.');
     //     }
@@ -91,7 +92,7 @@ export default function ProfileModal({ onClose }) {
     return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
 
-  const statusStyle = STATUS_STYLE[profile?.status] ?? STATUS_STYLE.inactive;
+  const statusStyle = STATUS_STYLE[profile?.status] ?? STATUS_STYLE.INACTIVE;
 
   // ── 콘텐츠 영역 렌더링 분기 ───────────────────────────────────────────────
   const renderContent = () => {
