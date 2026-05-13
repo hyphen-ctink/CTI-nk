@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import api from '@/lib/api';
+// [백엔드 연동 시 주석 해제]
+// import api from '@/lib/api';
 
 /**
  * 인증 가드 컴포넌트
@@ -37,9 +38,11 @@ export default function AuthGuard({ children, requiredRole = null }) {
     // [백엔드 연동 시 주석 해제]
     // role은 /ctink/profile 응답에 없으므로 sessionStorage에서 가져옴
     // (로그인 성공 시 /ctink/auth/login 응답의 role을 sessionStorage에 저장해야 함)
+    // let cancelled = false;
     // const verifySession = async () => {
     //   try {
     //     await api.get('/ctink/profile'); // 세션 유효성 확인용 (응답 데이터 불필요)
+    //     if (cancelled) return; // 언마운트 후 상태 업데이트 방지
     //     const role = sessionStorage.getItem('role');
     //     if (!role) {
     //       router.replace('/login');
@@ -51,16 +54,17 @@ export default function AuthGuard({ children, requiredRole = null }) {
     //     }
     //     setIsVerified(true);
     //   } catch {
-    //     // 401: api.js 인터셉터에서 sessionStorage role 제거 및 /login 리다이렉트 처리됨
+    //     // 401: api.js 인터셉터에서 sessionStorage.clear() 및 /login 리다이렉트 처리됨
     //   }
     // };
     // verifySession();
+    // return () => { cancelled = true; }; // cleanup: 언마운트 시 비동기 콜백 무효화
   }, [router, requiredRole]);
 
   if (!isVerified) {
     return (
       <div className="flex items-center justify-center h-screen bg-[var(--ctink-bg)]">
-        <div className="w-6 h-6 border-2 border-[var(--ctink-primary)] border-t-transparent rounded-full animate-spin" />
+        <div className="w-6 h-6 border-2 border-[var(--ctink-accent)] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }

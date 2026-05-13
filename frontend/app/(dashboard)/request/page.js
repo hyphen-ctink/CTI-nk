@@ -456,13 +456,7 @@ function SectionCard({ title, ruleType, decisions, isAdmin, onDecision, processi
       setTotalPages(total_pages);
       setCurrentPage(current_page);
       // ─────────────────────────────────────────────────────────────────────────
-    } catch (err) {
-      if (err.response?.status === 401) {
-        alert('세션이 만료되었습니다. 다시 로그인해주세요.');
-        // [API 연동 시 주석 해제] router.push('/login');
-        // ↑ 해제 시 상단에 import { useRouter } from 'next/navigation' 추가,
-        //   SectionCard 함수 최상단에 const router = useRouter() 추가 필요
-      }
+    } catch {
       setHasError(true);
     } finally {
       setIsLoading(false);
@@ -622,13 +616,7 @@ function OtherThreatSection() {
       setTotalPages(total_pages);
       setCurrentPage(current_page);
       // ─────────────────────────────────────────────────────────────────────────
-    } catch (err) {
-      if (err.response?.status === 401) {
-        alert('세션이 만료되었습니다. 다시 로그인해주세요.');
-        // [API 연동 시 주석 해제] router.push('/login');
-        // ↑ 해제 시 상단에 import { useRouter } from 'next/navigation' 추가,
-        //   OtherThreatSection 함수 최상단에 const router = useRouter() 추가 필요
-      }
+    } catch {
       setHasError(true);
     } finally {
       setIsLoading(false);
@@ -717,14 +705,14 @@ export default function RequestPage() {
 
       setDecisions(prev => ({ ...prev, [ruleId]: decision }));
       return true;
+    // 수정 후
     } catch (err) {
       const status = err.response?.status;
       if      (status === 409) alert('이미 처리된 룰입니다.');
       else if (status === 403) alert('관리자 권한이 없습니다.');
       else if (status === 404) alert('해당 룰을 찾을 수 없습니다.');
-      else if (status === 401) alert('세션이 만료되었습니다. 다시 로그인해주세요.');
       else if (status === 400) alert('잘못된 요청입니다. 다시 시도해주세요.');
-      else                     alert('처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      else if (status !== 401) alert('처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
       return false;
     } finally {
       setProcessingId(null);

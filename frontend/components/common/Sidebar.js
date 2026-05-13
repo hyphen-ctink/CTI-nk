@@ -29,19 +29,16 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const [role, setRole] = useState(() => {
-    if (typeof window === 'undefined') return null;
-    return sessionStorage.getItem('role') ?? 'user';
-  });
+  const [role, setRole] = useState('USER');
 
   useEffect(() => {
-    // [API 연동 후] ?? 'admin' 제거 — 로그인 응답에서 sessionStorage.setItem('role', response.data.role) 처리 후
-    setRole(sessionStorage.getItem('role') ?? 'user'); // 개발 중 임시 기본값
+    // [API 연동 후] ?? 'USER' 제거 — 로그인 응답에서 sessionStorage.setItem('role', response.data.role) 처리 후
+    setRole(sessionStorage.getItem('role') ?? 'USER'); // 개발 중 임시 기본값
   }, []);
 
   // [API 연동 후] role !== null 조건 복구
   // 현재는 API 연동 전이므로 role이 항상 null → 조건 제거하여 메뉴 렌더링 유지
-  const navItems = role === 'admin' ? NAV_ITEMS_ADMIN : NAV_ITEMS_USER;
+  const navItems = role === 'ADMIN' ? NAV_ITEMS_ADMIN : NAV_ITEMS_USER;
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -64,7 +61,7 @@ export default function Sidebar() {
 
     // [API 연동 전] 임시 처리 — 백엔드 연동 후 위 블록으로 교체
     sessionStorage.clear();
-    router.replace('/login'); 
+    router.replace('/login');
   };
 
   return (

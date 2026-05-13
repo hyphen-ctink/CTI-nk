@@ -242,7 +242,8 @@ export default function RulePage() {
   //     if (e.response?.status === 400) setError('날짜 범위가 올바르지 않습니다.');
   //     else setError('데이터를 불러오지 못했습니다.');
   //   } finally {
-  //     setIsLoading(false);
+  //     // abort된 요청의 finally는 후속 요청의 로딩 상태를 덮어쓰지 않도록 체크
+  //     if (!signal?.aborted) setIsLoading(false);
   //   }
   // }, [search, filterAttack, filterRuleType, filterTrust, filterStatus, dateFrom, dateTo]);
   // currentPage를 의존성에서 제외 → page 파라미터로 직접 전달하여 이중 호출 방지
@@ -297,11 +298,16 @@ export default function RulePage() {
   // ── [백엔드 연동 시 삭제 끝] ─────────────────────────────────────────────────
 
   // 페이지 변경 핸들러
+  // pageControllerRef: 페이지 변경 요청의 AbortController를 추적
+  // 연속 클릭 시 이전 요청을 abort()하여 race condition 방지
   // [백엔드 연동 시] 아래 주석 해제 및 setCurrentPage/setPageInput 단독 호출 블록 삭제
+  // const pageControllerRef = useRef(null); // [백엔드 연동 시 useRef import 추가 후 주석 해제]
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
     setPageInput(String(newPage));
+    // if (pageControllerRef.current) pageControllerRef.current.abort();
     // const controller = new AbortController();
+    // pageControllerRef.current = controller;
     // fetchRules(newPage, controller.signal);
   };
 

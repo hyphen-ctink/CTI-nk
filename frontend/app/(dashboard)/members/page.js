@@ -26,17 +26,17 @@ const MOCK_PENDING = [
 ];
 
 const MOCK_USERS = [
-  { user_id: 1,  name: '김민준', organization: '보안팀',     position: '팀장', email: 'minjun.kim@company.com',    role: 'admin', status: 'active',   last_login_at: '2026-03-23T14:22:00', phone: '010-1234-5678' },
-  { user_id: 2,  name: '이서연', organization: 'IT인프라팀', position: '선임', email: 'seoyeong.lee@company.com',  role: 'user',  status: 'active',   last_login_at: '2026-03-23T13:47:00', phone: '010-2345-6789' },
-  { user_id: 3,  name: '박지훈', organization: '보안팀',     position: '주임', email: 'jihun.park@company.com',    role: 'user',  status: 'active',   last_login_at: '2026-03-23T11:30:00', phone: '010-3456-7890' },
-  { user_id: 4,  name: '최수아', organization: '개발팀',     position: '과장', email: 'sua.choi@company.com',      role: 'user',  status: 'active',   last_login_at: '2026-03-22T17:55:00', phone: '010-4567-8901' },
-  { user_id: 5,  name: '정태양', organization: 'IT인프라팀', position: '사원', email: 'taeyang.jung@company.com',  role: 'user',  status: 'inactive', last_login_at: '2026-03-20T09:10:00', phone: '010-5678-9012' },
-  { user_id: 6,  name: '한수진', organization: '보안팀',     position: '사원', email: 'sujin.han@company.com',     role: 'user',  status: 'locked',   last_login_at: '2026-03-19T16:40:00', phone: '010-6789-0123' },
-  { user_id: 7,  name: '오준혁', organization: '개발팀',     position: '대리', email: 'junhyuk.oh@company.com',    role: 'user',  status: 'active',   last_login_at: '2026-03-19T14:20:00', phone: '010-7890-1234' },
-  { user_id: 8,  name: '윤채원', organization: '보안팀',     position: '사원', email: 'chaewon.yoon@company.com',  role: 'user',  status: 'active',   last_login_at: '2026-03-18T10:05:00', phone: '010-8901-2345' },
-  { user_id: 9,  name: '송다은', organization: 'IT인프라팀', position: '선임', email: 'daeun.song@company.com',    role: 'user',  status: 'active',   last_login_at: '2026-03-17T09:30:00', phone: '010-9012-3456' },
-  { user_id: 10, name: '권혁준', organization: '개발팀',     position: '주임', email: 'hyukjun.kwon@company.com',  role: 'user',  status: 'inactive', last_login_at: '2026-03-15T16:00:00', phone: '010-0123-4567' },
-  { user_id: 11, name: '노지현', organization: '보안팀',     position: '사원', email: 'jihyun.noh@company.com',    role: 'user',  status: 'active',   last_login_at: '2026-03-14T11:20:00', phone: '010-1234-0000' },
+  { user_id: 1,  name: '김민준', organization: '보안팀',     position: '팀장', email: 'minjun.kim@company.com',    role: 'ADMIN', status: 'ACTIVE',   last_login_at: '2026-03-23T14:22:00', phone: '010-1234-5678' },
+  { user_id: 2,  name: '이서연', organization: 'IT인프라팀', position: '선임', email: 'seoyeong.lee@company.com',  role: 'USER',  status: 'ACTIVE',   last_login_at: '2026-03-23T13:47:00', phone: '010-2345-6789' },
+  { user_id: 3,  name: '박지훈', organization: '보안팀',     position: '주임', email: 'jihun.park@company.com',    role: 'USER',  status: 'ACTIVE',   last_login_at: '2026-03-23T11:30:00', phone: '010-3456-7890' },
+  { user_id: 4,  name: '최수아', organization: '개발팀',     position: '과장', email: 'sua.choi@company.com',      role: 'USER',  status: 'ACTIVE',   last_login_at: '2026-03-22T17:55:00', phone: '010-4567-8901' },
+  { user_id: 5,  name: '정태양', organization: 'IT인프라팀', position: '사원', email: 'taeyang.jung@company.com',  role: 'USER',  status: 'INACTIVE', last_login_at: '2026-03-20T09:10:00', phone: '010-5678-9012' },
+  { user_id: 6,  name: '한수진', organization: '보안팀',     position: '사원', email: 'sujin.han@company.com',     role: 'USER',  status: 'LOCKED',   last_login_at: '2026-03-19T16:40:00', phone: '010-6789-0123' },
+  { user_id: 7,  name: '오준혁', organization: '개발팀',     position: '대리', email: 'junhyuk.oh@company.com',    role: 'USER',  status: 'ACTIVE',   last_login_at: '2026-03-19T14:20:00', phone: '010-7890-1234' },
+  { user_id: 8,  name: '윤채원', organization: '보안팀',     position: '사원', email: 'chaewon.yoon@company.com',  role: 'USER',  status: 'ACTIVE',   last_login_at: '2026-03-18T10:05:00', phone: '010-8901-2345' },
+  { user_id: 9,  name: '송다은', organization: 'IT인프라팀', position: '선임', email: 'daeun.song@company.com',    role: 'USER',  status: 'ACTIVE',   last_login_at: '2026-03-17T09:30:00', phone: '010-9012-3456' },
+  { user_id: 10, name: '권혁준', organization: '개발팀',     position: '주임', email: 'hyukjun.kwon@company.com',  role: 'USER',  status: 'INACTIVE', last_login_at: '2026-03-15T16:00:00', phone: '010-0123-4567' },
+  { user_id: 11, name: '노지현', organization: '보안팀',     position: '사원', email: 'jihyun.noh@company.com',    role: 'USER',  status: 'ACTIVE',   last_login_at: '2026-03-14T11:20:00', phone: '010-1234-0000' },
 ];
 
 // ─── 유틸 ─────────────────────────────────────────────────────────────────────
@@ -100,7 +100,7 @@ function Badge({ label, count, color, bg }) {
 
 // 역할 표시 뱃지 (admin: 파란색, user: 회색)
 function RoleBadge({ role }) {
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'ADMIN';
   return (
     <span style={{
       display:         'inline-block',
@@ -119,9 +119,9 @@ function RoleBadge({ role }) {
 // 계정 상태 표시 (활성/비활성/잠김)
 function StatusDot({ status }) {
   const map = {
-    active:   { label: '활성',   color: '#0F6E56' },
-    inactive: { label: '비활성', color: '#A32D2D' },
-    locked:   { label: '잠김',   color: '#BA7517' },
+    ACTIVE:   { label: '활성',   color: '#0F6E56' },
+    INACTIVE: { label: '비활성', color: '#A32D2D' },
+    LOCKED:   { label: '잠김',   color: '#BA7517' },
   };
   const { label, color } = map[status] || { label: status, color: 'var(--ctink-text-muted)' };
   return (
@@ -306,9 +306,9 @@ function UserDetailPanel({ user, onRoleToggle, processingRoleId }) {
         <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--ctink-text)' }}>
           사용자 상세 정보
         </span>
-        {/* 역할 변경: admin ↔ user 토글. 본인 계정 변경 시도는 서버에서 403 반환 */}
+        {/* 역할 변경: ADMIN ↔ USER 토글. 본인 계정 변경 시도는 서버에서 403 반환 */}
         <ActionButton
-          label={user.role === 'admin' ? '일반으로 변경' : '관리자로 변경'}
+          label={user.role === 'ADMIN' ? '일반으로 변경' : '관리자로 변경'}
           color="var(--ctink-accent)"
           bg="rgba(63,114,175,0.08)"
           loading={isRoleProcessing}
@@ -417,7 +417,7 @@ function PendingSection() {
     setProcessingId(`${targetUserId}_${decision}`);
     try {
       // ─ [API 연동 시] 아래 3줄 주석 해제 후 [목업] 블록 전체 삭제 ──────────
-      // await api.patch(`/ctink/admin/users/${targetUserId}/decision`, { decision });
+      // await api.patch(`/ctink/admin/users/${targetUserId}/decision`, { decision: decision.toUpperCase() });
       // await fetchPending(currentPage); // 승인/거부 후 목록 재조회 (서버에서 해당 레코드 삭제됨)
       // return;
       // ────────────────────────────────────────────────────────────────────
@@ -618,7 +618,7 @@ function UsersSection() {
   // 계정 상태 변경: active ↔ inactive 토글, locked → active (잠금 해제)
   const handleToggleStatus = async (user) => {
     const curStatus  = statusMap[user.user_id] ?? user.status;
-    const nextStatus = curStatus === 'active' ? 'inactive' : 'active';
+    const nextStatus = curStatus === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
 
     setProcessingId(`status_${user.user_id}`);
     try {
@@ -649,7 +649,7 @@ function UsersSection() {
   // 본인 계정 역할 변경 시도는 서버에서 403 반환
   const handleToggleRole = async (user) => {
     const curRole  = roleMap[user.user_id] ?? user.role;
-    const nextRole = curRole === 'admin' ? 'user' : 'admin';
+    const nextRole = curRole === 'ADMIN' ? 'USER' : 'ADMIN';
 
     setProcessingRoleId(user.user_id);
     try {
@@ -752,10 +752,10 @@ function UsersSection() {
                   const isProcessing = processingId === `status_${user.user_id}`;
 
                   // 상태에 따른 버튼 레이블 및 색상
-                  // locked → active (잠금 해제), active → inactive (비활성화), inactive → active (활성화)
-                  const toggleLabel = curStatus === 'active' ? '비활성화' : curStatus === 'locked' ? '잠금 해제' : '활성화';
-                  const toggleColor = curStatus === 'active' ? '#A32D2D' : curStatus === 'locked' ? '#BA7517' : '#0F6E56';
-                  const toggleBg    = curStatus === 'active' ? 'rgba(163,45,45,0.08)' : curStatus === 'locked' ? 'rgba(186,117,23,0.08)' : 'rgba(15,110,86,0.08)';
+                  // LOCKED → ACTIVE (잠금 해제), ACTIVE → INACTIVE (비활성화), INACTIVE → ACTIVE (활성화)
+                  const toggleLabel = curStatus === 'ACTIVE' ? '비활성화' : curStatus === 'LOCKED' ? '잠금 해제' : '활성화';
+                  const toggleColor = curStatus === 'ACTIVE' ? '#A32D2D' : curStatus === 'LOCKED' ? '#BA7517' : '#0F6E56';
+                  const toggleBg    = curStatus === 'ACTIVE' ? 'rgba(163,45,45,0.08)' : curStatus === 'LOCKED' ? 'rgba(186,117,23,0.08)' : 'rgba(15,110,86,0.08)';
 
                   const bdrBottom = isSelected ? 'none' : '1px solid var(--ctink-border)';
 

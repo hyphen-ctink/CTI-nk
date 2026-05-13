@@ -8,6 +8,62 @@ import { useForm } from 'react-hook-form';
 // ↓ [연동 시 주석 해제]
 // import api from '@/lib/api';
 
+/* ── 컴포넌트 외부 상수 ─────────────────────────────────────────────── */
+
+const EyeOpen = (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
+const EyeOff = (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+    <line x1="1" y1="1" x2="23" y2="23" />
+  </svg>
+);
+
+const inputStyle = {
+  width: '100%',
+  padding: '10px 14px',
+  fontSize: '13px',
+  color: 'var(--ctink-text)',
+  backgroundColor: 'var(--ctink-bg)',
+  border: '1px solid var(--ctink-border)',
+  borderRadius: '8px',
+  outline: 'none',
+};
+
+const labelStyle = {
+  display: 'block',
+  fontSize: '12px',
+  fontWeight: 700,
+  color: 'var(--ctink-text-muted)',
+  marginBottom: '6px',
+};
+
+const errorStyle = {
+  fontSize: '11px',
+  color: '#A32D2D',
+  marginTop: '4px',
+};
+
+const eyeButtonStyle = {
+  position: 'absolute',
+  right: '12px',
+  top: '50%',
+  transform: 'translateY(-50%)',
+  background: 'none',
+  border: 'none',
+  cursor: 'pointer',
+  color: 'var(--ctink-text-muted)',
+  padding: 0,
+  display: 'flex',
+  alignItems: 'center',
+};
+
 export default function SignupPage() {
   const router = useRouter();
   const timerRef = useRef(null);
@@ -28,13 +84,25 @@ export default function SignupPage() {
 
   const passwordValue = watch('password');
 
+  // 이미 로그인된 사용자 리다이렉트
+  // sessionStorage에 role이 존재하면 로그인 상태로 판단하여 overview로 이동
+  // 주의: useEffect는 클라이언트 마운트 후 실행되므로 페이지가 잠깐 노출될 수 있음 (sessionStorage 특성상 불가피)
+  useEffect(() => {
+    const role = sessionStorage.getItem('role');
+    if (role) {
+      router.replace('/overview');
+    }
+  }, [router]);
+
   // 비밀번호가 변경될 때 비밀번호 확인 필드를 재검증
   // (한 번이라도 터치된 경우에만 실행하여 초기 렌더링 시 에러 표시 방지)
+  const touchedFieldsRef = useRef(touchedFields);
+  touchedFieldsRef.current = touchedFields;
+
   useEffect(() => {
-    if (touchedFields.password_confirm) {
+    if (touchedFieldsRef.current.password_confirm) {
       trigger('password_confirm');
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [passwordValue, trigger]);
 
   // 성공 후 리다이렉트 타이머 — 컴포넌트 언마운트 시 정리
@@ -63,7 +131,7 @@ export default function SignupPage() {
     setIsSuccess(true);
     setServerMessage('회원가입이 완료되었습니다. 관리자 승인 후 이용 가능합니다.');
     setIsLoading(false);
-    timerRef.current = setTimeout(() => router.push('/login'), 2500);
+    timerRef.current = setTimeout(() => router.replace('/login'), 2500);
     return;
     // ↑↑↑ [연동 시 위 블록 전체 삭제] ↑↑↑
 
@@ -72,7 +140,7 @@ export default function SignupPage() {
     //   const res = await api.post('/ctink/auth/join', payload);
     //   setIsSuccess(true);
     //   setServerMessage(res.data.message);
-    //   timerRef.current = setTimeout(() => router.push('/login'), 2500);
+    //   timerRef.current = setTimeout(() => router.replace('/login'), 2500);
     // } catch (error) {
     //   const msg = error.response?.data?.message || '오류가 발생했습니다.';
     //   setServerMessage(msg);
@@ -81,72 +149,16 @@ export default function SignupPage() {
     // }
   };
 
-  /* ── 스타일 상수 ── */
-  const inputStyle = {
-    width: '100%',
-    padding: '10px 14px',
-    fontSize: '13px',
-    color: 'var(--ctink-text)',
-    backgroundColor: 'var(--ctink-bg)',
-    border: '1px solid var(--ctink-border)',
-    borderRadius: '8px',
-    outline: 'none',
-  };
-
-  const labelStyle = {
-    display: 'block',
-    fontSize: '12px',
-    fontWeight: 700,
-    color: 'var(--ctink-text-muted)',
-    marginBottom: '6px',
-  };
-
-  const errorStyle = {
-    fontSize: '11px',
-    color: '#A32D2D',
-    marginTop: '4px',
-  };
-
-  const eyeButtonStyle = {
-    position: 'absolute',
-    right: '12px',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    color: 'var(--ctink-text-muted)',
-    padding: 0,
-    display: 'flex',
-    alignItems: 'center',
-  };
-
-  /* ── 눈 아이콘 SVG ── */
-  const EyeOpen = (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-
-  const EyeOff = (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-      <line x1="1" y1="1" x2="23" y2="23" />
-    </svg>
-  );
-
   return (
     <div style={{ minHeight: '100vh', display: 'flex', backgroundColor: 'var(--ctink-bg)' }}>
 
       {/* ── 왼쪽 브랜딩 패널 ── */}
       <div
+        className="hidden md:flex"
         style={{
           width: '360px',
           flexShrink: 0,
           backgroundColor: 'var(--ctink-card)',
-          display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
@@ -237,12 +249,13 @@ export default function SignupPage() {
             <fieldset disabled={isSuccess || isLoading} style={{ border: 'none', padding: 0, margin: 0 }}>
 
               {/* ID / 이름 */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '16px', marginBottom: '16px' }}>
                 <div>
                   <label htmlFor="login_id" style={labelStyle}>ID</label>
                   <input
                     id="login_id"
                     type="text"
+                    autoComplete="username" 
                     placeholder="ID를 입력하세요"
                     className="ctink-input"
                     style={{ ...inputStyle, borderColor: errors.login_id ? '#A32D2D' : 'var(--ctink-border)' }}
@@ -260,6 +273,7 @@ export default function SignupPage() {
                   <input
                     id="name"
                     type="text"
+                    autoComplete="name"
                     placeholder="이름을 입력하세요"
                     className="ctink-input"
                     style={{ ...inputStyle, borderColor: errors.name ? '#A32D2D' : 'var(--ctink-border)' }}
@@ -270,13 +284,14 @@ export default function SignupPage() {
               </div>
 
               {/* 비밀번호 / 비밀번호 확인 */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '16px', marginBottom: '16px' }}>
                 <div>
                   <label htmlFor="password" style={labelStyle}>비밀번호</label>
                   <div style={{ position: 'relative' }}>
                     <input
                       id="password"
                       type={showPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
                       placeholder="비밀번호를 입력하세요"
                       className="ctink-input"
                       style={{
@@ -309,6 +324,7 @@ export default function SignupPage() {
                     <input
                       id="password_confirm"
                       type={showPasswordConfirm ? 'text' : 'password'}
+                      autoComplete="new-password"
                       placeholder="비밀번호를 재입력하세요"
                       className="ctink-input"
                       style={{
@@ -335,12 +351,13 @@ export default function SignupPage() {
               </div>
 
               {/* 소속 / 직책 */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '16px', marginBottom: '16px' }}>
                 <div>
                   <label htmlFor="organization" style={labelStyle}>소속</label>
                   <input
                     id="organization"
                     type="text"
+                    autoComplete="organization"
                     placeholder="소속을 입력하세요"
                     className="ctink-input"
                     style={{ ...inputStyle, borderColor: errors.organization ? '#A32D2D' : 'var(--ctink-border)' }}
@@ -353,6 +370,7 @@ export default function SignupPage() {
                   <input
                     id="position"
                     type="text"
+                    autoComplete="organization-title"
                     placeholder="직책을 입력하세요"
                     className="ctink-input"
                     style={{ ...inputStyle, borderColor: errors.position ? '#A32D2D' : 'var(--ctink-border)' }}
@@ -368,6 +386,7 @@ export default function SignupPage() {
                 <input
                   id="email"
                   type="email"
+                  autoComplete="email"
                   placeholder="이메일 주소를 입력하세요"
                   className="ctink-input"
                   style={{ ...inputStyle, borderColor: errors.email ? '#A32D2D' : 'var(--ctink-border)' }}
@@ -385,6 +404,7 @@ export default function SignupPage() {
                 <input
                   id="phone"
                   type="tel"
+                  autoComplete="tel"
                   placeholder="전화번호를 입력하세요 (예: 010-1234-5678)"
                   className="ctink-input"
                   style={{ ...inputStyle, borderColor: errors.phone ? '#A32D2D' : 'var(--ctink-border)' }}

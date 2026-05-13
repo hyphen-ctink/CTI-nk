@@ -128,7 +128,7 @@ export default function LoginPage() {
     await new Promise((r) => setTimeout(r, 800));
     sessionStorage.setItem('role', 'user'); // 개발 중 임시값 ('user'로 변경하여 권한 테스트 가능)
     sessionStorage.setItem('name', '테스트관리자'); // 개발 중 임시값
-    router.push('/overview');
+    router.replace('/overview');
     setIsLoading(false);
     return;
     // ────────────────────────────────────────────────────────────────
@@ -149,7 +149,7 @@ export default function LoginPage() {
     //   }
     //   sessionStorage.setItem('role', res.data.role);
     //   if (res.data.name) sessionStorage.setItem('name', res.data.name);
-    //   router.push('/overview');
+    //   router.replace('/overview');
     //
     // } catch (error) {
     //   const status = error.response?.status;
@@ -209,11 +209,11 @@ export default function LoginPage() {
 
       {/* ── 왼쪽 브랜딩 패널 ── */}
       <div
+        className="hidden md:flex"
         style={{
           width: '360px',
           flexShrink: 0,
           backgroundColor: 'var(--ctink-card)',
-          display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
