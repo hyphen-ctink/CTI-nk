@@ -1,5 +1,6 @@
 package hyphen.ctink.domain.collector;
 
+import hyphen.ctink.domain.collector.dto.CollectorJobDTO;
 import hyphen.ctink.domain.platform.CollectionPlatform;
 import hyphen.ctink.domain.platform.CollectionPlatformRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class CollectorSchedularService {
         List<CollectionPlatform> platforms = platformRepository.findAll();
 
         for (CollectionPlatform platform: platforms) {
-            if (!platform.nextCollectTime(now)) {
+            if (platform.getLastCollectedAt() != null && !platform.nextCollectTime(now)) {
                 continue;
             }
 
