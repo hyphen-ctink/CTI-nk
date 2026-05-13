@@ -1,6 +1,6 @@
 package hyphen.ctink.domain.indicator.dto;
 
-public record UpdateTrustLevelJobResultDTO(
+public record SearchIocJobResultDTO(
         String ioc,
         String status,
         String platform,

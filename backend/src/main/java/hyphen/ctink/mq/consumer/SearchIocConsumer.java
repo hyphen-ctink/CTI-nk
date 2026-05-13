@@ -1,19 +1,19 @@
 package hyphen.ctink.mq.consumer;
 
-import hyphen.ctink.domain.indicator.UpdateTrustLevelResultService;
-import hyphen.ctink.domain.indicator.dto.UpdateTrustLevelJobResultDTO;
+import hyphen.ctink.domain.indicator.SearchIocResultService;
+import hyphen.ctink.domain.indicator.dto.SearchIocJobResultDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class UpdateTrustLevelConsumer {
+public class SearchIocConsumer {
 
-    private final UpdateTrustLevelResultService updateTrustLevelResultService;
+    private final SearchIocResultService updateTrustLevelResultService;
 
     @RabbitListener(queues = "trust.result.queue")
-    public void consume(UpdateTrustLevelJobResultDTO result) {
+    public void consume(SearchIocJobResultDTO result) {
         updateTrustLevelResultService.process(result);
     }
 

@@ -8,12 +8,12 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @EnableScheduling
-public class UpdateTrustLevelSchedular {
+public class SearchIocSchedular {
 
-    private final UpdateTrustLevelService updateTrustLevelService;
+    private final SearchIocService updateTrustLevelService;
 
     @Scheduled(cron = "0 0 3 * * MON")
     public void run() {
-        updateTrustLevelService.updateTrustLevel();
+        updateTrustLevelService.searchIoc();
     }
 }

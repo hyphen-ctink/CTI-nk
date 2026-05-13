@@ -1,42 +1,39 @@
 package hyphen.ctink.domain.indicator;
 
-import hyphen.ctink.domain.indicator.dto.UpdateTrustLevelJobDTO;
-import hyphen.ctink.mq.producer.UpdateTrustLevelProducer;
+import hyphen.ctink.domain.cti.enums.CtiPlatform;
+import hyphen.ctink.domain.indicator.enums.TrustLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class UpdateTrustLevelService {
 
-    private final UpdateTrustLevelProducer producer;
     private final IocRepository iocRepository;
 
-    @Transactional
-    public void updateTrustLevel() {
+    public void updateTrustLevel(Long iocId) {
+        Ioc ioc = iocRepository.findById(iocId)
+                .orElseThrow(() -> new RuntimeException("Ioc not found"));
 
-        List<Ioc> iocs = iocRepository.findByMispConfirmedFalseOrVirustotalConfirmedFalse();
+        Set<CtiPlatform> platforms = ioc.getPlatformName();
 
-        for (Ioc ioc : iocs) {
-            if (!ioc.isMispConfirmed()) {
-                UpdateTrustLevelJobDTO message = new UpdateTrustLevelJobDTO(
-                        ioc.getIocValue(),
-                        "misp"
-                );
+        int platformCount = (platforms == null) ? 0 : platforms.size();
 
-                producer.send(message);
+        if (platformCount < 3) {
+            if (ioc.isMispConfirmed() && ioc.isVirustotalConfirmed()) {
+                ioc.setTrustLevel(TrustLevel.HIGH);
+            } else if (ioc.isMispConfirmed() || ioc.isVirustotalConfirmed()) {
+                ioc.setTrustLevel(TrustLevel.MEDIUM);
+            } else {
+                ioc.setTrustLevel(TrustLevel.LOW);
             }
-
-            if (!ioc.isVirustotalConfirmed()) {
-                UpdateTrustLevelJobDTO message = new UpdateTrustLevelJobDTO(
-                        ioc.getIocValue(),
-                        "virustotal"
-                );
-
-                producer.send(message);
+        } else {
+            if (ioc.isMispConfirmed() || ioc.isVirustotalConfirmed()) {
+                ioc.setTrustLevel(TrustLevel.HIGH);
+            } else {
+                ioc.setTrustLevel(TrustLevel.MEDIUM);
             }
         }
 
