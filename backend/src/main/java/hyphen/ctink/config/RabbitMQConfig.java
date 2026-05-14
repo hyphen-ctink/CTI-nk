@@ -1,5 +1,6 @@
 package hyphen.ctink.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -13,7 +14,9 @@ import org.springframework.amqp.support.converter.MessageConverter;
 public class RabbitMQConfig {
 
     public static final String COLLECT_QUEUE = "collector.queue";
-    public static final String RESULT_QUEUE = "collector.result.queue";
+    public static final String COLLECT_RESULT_QUEUE = "collector.result.queue";
+    public static final String TRUST_QUEUE = "trust.queue";
+    public static final String TRUST_RESULT_QUEUE = "trust.result.queue";
 
     @Bean
     public Queue collectQueue() {
@@ -23,15 +26,29 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Queue resultQueue() {
+    public Queue collectResultQueue() {
         return QueueBuilder
-                .durable(RESULT_QUEUE)
+                .durable(COLLECT_RESULT_QUEUE)
                 .build();
     }
 
     @Bean
-    public MessageConverter messageConverter() {
-        return new Jackson2JsonMessageConverter();
+    public Queue trustQueue() {
+        return QueueBuilder
+                .durable(TRUST_QUEUE)
+                .build();
+    }
+
+    @Bean
+    public Queue trustResultQueue() {
+        return QueueBuilder
+                .durable(TRUST_RESULT_QUEUE)
+                .build();
+    }
+
+    @Bean
+    public MessageConverter messageConverter(ObjectMapper objectMapper) {
+        return new Jackson2JsonMessageConverter(objectMapper);
     }
 
     @Bean

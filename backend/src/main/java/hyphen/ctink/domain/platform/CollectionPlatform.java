@@ -38,4 +38,17 @@ public class CollectionPlatform {
 
     @Column(name = "last_collected_at")
     private LocalDateTime lastCollectedAt;
+
+    public void updateLastCollectedAt(LocalDateTime now) {
+        this.lastCollectedAt = now;
+    }
+
+    public boolean nextCollectTime(LocalDateTime now) {
+        if (lastCollectedAt == null) {
+            return true;
+        }
+
+        LocalDateTime nextCollectTime = lastCollectedAt.plusDays(currentIntervalTime);
+        return !nextCollectTime.isAfter(now);
+    }
 }
