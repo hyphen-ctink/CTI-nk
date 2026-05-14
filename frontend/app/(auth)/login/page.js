@@ -5,9 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-// ── [연동 시 주석 해제] ─────────────────────────────────────────────
-// import api from '@/lib/api';
-// ────────────────────────────────────────────────────────────────────
+import api from '@/lib/api';
 
 /* ── 컴포넌트 외부 상수 ───────────────────────────────────────────────
  * 렌더마다 재생성되지 않도록 컴포넌트 함수 밖에 선언
@@ -121,85 +119,71 @@ export default function LoginPage() {
       password: data.password,
     };
 
-    // ── [연동 시 아래 블록 전체 삭제] ───────────────────────────────
-    // 개발 중 임시 처리: 로그인 성공으로 간주하고 overview로 이동
-    // user 권한 테스트 시 아래 'admin'을 'user'로 변경하면 됨
-    console.log('[DEV] 로그인 요청 payload:', payload);
-    await new Promise((r) => setTimeout(r, 800));
-    sessionStorage.setItem('role', 'user'); // 개발 중 임시값 ('user'로 변경하여 권한 테스트 가능)
-    sessionStorage.setItem('name', '테스트관리자'); // 개발 중 임시값
-    router.replace('/overview');
-    setIsLoading(false);
-    return;
-    // ────────────────────────────────────────────────────────────────
-
-    // ── [연동 시 아래 블록 전체 주석 해제] ──────────────────────────
-    // try {
-    //   const res = await api.post('/ctink/auth/login', payload);
-    //
-    //   // 200: 로그인 성공
-    //   // API 명세상 role, name은 Nullable이므로 null 방어 처리 후 저장
-    //   // null이 그대로 저장되면 'null' 문자열로 저장되어 로그인 상태 오판 발생
-    //   if (!res.data.role) {
-    //     // role이 null인 경우 비정상 응답으로 판단하여 에러 처리
-    //     // 백엔드에서 role이 null로 내려오는 경우가 없어야 정상 → 발생 시 팀 확인 필요
-    //     setMessageType('error');
-    //     setServerMessage('로그인 처리 중 오류가 발생했습니다. 관리자에게 문의해주세요.');
-    //     return;
-    //   }
-    //   sessionStorage.setItem('role', res.data.role);
-    //   if (res.data.name) sessionStorage.setItem('name', res.data.name);
-    //   router.replace('/overview');
-    //
-    // } catch (error) {
-    //   const status = error.response?.status;
-    //   const body   = error.response?.data;
-    //
-    //   if (status === 400) {
-    //     // 아이디 또는 비밀번호 누락 (클라이언트 유효성 검사로 대부분 방어되지만 방어적으로 처리)
-    //     setMessageType('error');
-    //     setServerMessage(body?.message || '아이디와 비밀번호를 모두 입력해주세요.');
-    //
-    //   } else if (status === 401) {
-    //     const attempts = body?.login_attempts ?? 0;
-    //     if (attempts >= 3) {
-    //       // 3회 이상 실패: 경고 팝업 표시 + 서버 메시지 함께 전달
-    //       setShowAttemptsWarning(true);
-    //       setMessageType('warning');
-    //       setServerMessage(body?.message || '아이디 또는 비밀번호가 일치하지 않습니다.');
-    //     } else {
-    //       setMessageType('error');
-    //       setServerMessage(body?.message || '아이디 또는 비밀번호가 일치하지 않습니다.');
-    //     }
-    //
-    //   } else if (status === 403) {
-    //     const msg = body?.message ?? '';
-    //     // 주의: inactive/pending 구분을 서버 메시지 문자열로 판단함
-    //     // 서버 측 메시지가 변경될 경우 아래 includes 조건도 함께 수정 필요
-    //     if (msg.includes('비활성화')) {
-    //       // 403 inactive: 계정 비활성화 상태 → 에러 계열 색상
-    //       setMessageType('inactive');
-    //     } else {
-    //       // 403 pending: 관리자 승인 대기 상태 → 안내 계열 색상
-    //       setMessageType('pending');
-    //     }
-    //     setServerMessage(msg || '계정을 확인해주세요.');
-    //
-    //   } else if (status === 423) {
-    //     // 로그인 5회 실패로 계정 잠금, 관리자만 해제 가능
-    //     setMessageType('locked');
-    //     setServerMessage(body?.message || '로그인 5회 실패로 계정이 잠금되었습니다.');
-    //
-    //   } else {
-    //     // 네트워크 오류 및 그 외 서버 오류
-    //     setMessageType('error');
-    //     setServerMessage('오류가 발생했습니다. 다시 시도해주세요.');
-    //   }
-    //
-    // } finally {
-    //   setIsLoading(false);
-    // }
-    // ────────────────────────────────────────────────────────────────
+    try {
+      const res = await api.post('/ctink/auth/login', payload);
+    
+      // 200: 로그인 성공
+      // API 명세상 role, name은 Nullable이므로 null 방어 처리 후 저장
+      // null이 그대로 저장되면 'null' 문자열로 저장되어 로그인 상태 오판 발생
+      if (!res.data.role) {
+        // role이 null인 경우 비정상 응답으로 판단하여 에러 처리
+        // 백엔드에서 role이 null로 내려오는 경우가 없어야 정상 → 발생 시 팀 확인 필요
+        setMessageType('error');
+        setServerMessage('로그인 처리 중 오류가 발생했습니다. 관리자에게 문의해주세요.');
+        return;
+      }
+      sessionStorage.setItem('role', res.data.role);
+      if (res.data.name) sessionStorage.setItem('name', res.data.name);
+      router.replace('/overview');
+    
+    } catch (error) {
+      const status = error.response?.status;
+      const body   = error.response?.data;
+    
+      if (status === 400) {
+        // 아이디 또는 비밀번호 누락 (클라이언트 유효성 검사로 대부분 방어되지만 방어적으로 처리)
+        setMessageType('error');
+        setServerMessage(body?.message || '아이디와 비밀번호를 모두 입력해주세요.');
+    
+      } else if (status === 401) {
+        const attempts = body?.login_attempts ?? 0;
+        if (attempts >= 3) {
+          // 3회 이상 실패: 경고 팝업 표시 + 서버 메시지 함께 전달
+          setShowAttemptsWarning(true);
+          setMessageType('warning');
+          setServerMessage(body?.message || '아이디 또는 비밀번호가 일치하지 않습니다.');
+        } else {
+          setMessageType('error');
+          setServerMessage(body?.message || '아이디 또는 비밀번호가 일치하지 않습니다.');
+        }
+    
+      } else if (status === 403) {
+        const msg = body?.message ?? '';
+        // 주의: inactive/pending 구분을 서버 메시지 문자열로 판단함
+        // 서버 측 메시지가 변경될 경우 아래 includes 조건도 함께 수정 필요
+        if (msg.includes('비활성화')) {
+          // 403 inactive: 계정 비활성화 상태 → 에러 계열 색상
+          setMessageType('inactive');
+        } else {
+          // 403 pending: 관리자 승인 대기 상태 → 안내 계열 색상
+          setMessageType('pending');
+        }
+        setServerMessage(msg || '계정을 확인해주세요.');
+    
+      } else if (status === 423) {
+        // 로그인 5회 실패로 계정 잠금, 관리자만 해제 가능
+        setMessageType('locked');
+        setServerMessage(body?.message || '로그인 5회 실패로 계정이 잠금되었습니다.');
+    
+      } else {
+        // 네트워크 오류 및 그 외 서버 오류
+        setMessageType('error');
+        setServerMessage('오류가 발생했습니다. 다시 시도해주세요.');
+      }
+    
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const mc = MESSAGE_COLORS[messageType] ?? MESSAGE_COLORS.error;

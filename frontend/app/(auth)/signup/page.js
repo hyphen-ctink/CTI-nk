@@ -5,8 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-// ↓ [연동 시 주석 해제]
-// import api from '@/lib/api';
+import api from '@/lib/api';
 
 /* ── 컴포넌트 외부 상수 ─────────────────────────────────────────────── */
 
@@ -126,27 +125,17 @@ export default function SignupPage() {
       phone:        data.phone,
     };
 
-    // ↓↓↓ [연동 시 아래 블록 전체 삭제] ↓↓↓
-    await new Promise((r) => setTimeout(r, 800));
-    setIsSuccess(true);
-    setServerMessage('회원가입이 완료되었습니다. 관리자 승인 후 이용 가능합니다.');
-    setIsLoading(false);
-    timerRef.current = setTimeout(() => router.replace('/login'), 2500);
-    return;
-    // ↑↑↑ [연동 시 위 블록 전체 삭제] ↑↑↑
-
-    // ↓ [연동 시 주석 해제]
-    // try {
-    //   const res = await api.post('/ctink/auth/join', payload);
-    //   setIsSuccess(true);
-    //   setServerMessage(res.data.message);
-    //   timerRef.current = setTimeout(() => router.replace('/login'), 2500);
-    // } catch (error) {
-    //   const msg = error.response?.data?.message || '오류가 발생했습니다.';
-    //   setServerMessage(msg);
-    // } finally {
-    //   setIsLoading(false);
-    // }
+    try {
+      const res = await api.post('/ctink/auth/join', payload);
+      setIsSuccess(true);
+      setServerMessage(res.data.message);
+      timerRef.current = setTimeout(() => router.replace('/login'), 2500);
+    } catch (error) {
+      const msg = error.response?.data?.message || '오류가 발생했습니다.';
+      setServerMessage(msg);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

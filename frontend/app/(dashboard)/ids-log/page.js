@@ -5,7 +5,6 @@ import RuleDetailModal from '@/components/common/RuleDetailModal';
 import api from '@/lib/api';
 
 // ─── 상수 ────────────────────────────────────────────────────────────────────
-// 키값은 API 응답 기준 대문자 스네이크케이스 (DB ENUM은 소문자이나 백엔드에서 대문자로 변환하여 전달)
 
 const ATTACK_TYPE_LABEL = {
   RANSOMWARE:          '랜섬웨어',
@@ -33,39 +32,6 @@ const PAGE_SIZE = 15; // API 명세서 기준 페이지당 항목 수 고정값
 
 // ── 폴링 주기 ─────────────────────────────────────────────────────────────────
 const POLLING_INTERVAL = 30_000; // 30초 (Overview 페이지와 동일)
-
-// ─── [백엔드 연동 시 이 블록 전체 삭제] 목업 데이터 ──────────────────────────
-// attack_type, result 값은 API 응답과 동일하게 대문자로 작성
-
-const MOCK_IDS_LOGS = [
-  { log_id:  1, rule_id: 1, rule_name: 'RULE_LOCKBIT3_002',    attack_type: 'RANSOMWARE',          result: 'ALERT',  detected_at: '2026-03-23T14:51:00' },
-  { log_id:  2, rule_id: 2, rule_name: 'RULE_CRED_GS25_011',   attack_type: 'CREDENTIAL_STUFFING', result: 'BLOCK',  detected_at: '2026-03-23T14:23:00' },
-  { log_id:  3, rule_id: 3, rule_name: 'RULE_PHISH_SKT_007',   attack_type: 'PHISHING',            result: 'DETECT', detected_at: '2026-03-23T13:58:00' },
-  { log_id:  4, rule_id: 5, rule_name: 'RULE_DDOS_DNS_005',    attack_type: 'DDOS',                result: 'BLOCK',  detected_at: '2026-03-23T13:41:00' },
-  { log_id:  5, rule_id: 4, rule_name: 'RULE_WEB_STRUTS_003',  attack_type: 'WEB_ATTACK',          result: 'DETECT', detected_at: '2026-03-23T13:12:00' },
-  { log_id:  6, rule_id: 1, rule_name: 'RULE_LOCKBIT3_002',    attack_type: 'RANSOMWARE',          result: 'BLOCK',  detected_at: '2026-03-23T12:44:00' },
-  { log_id:  7, rule_id: 3, rule_name: 'RULE_PHISH_SKT_007',   attack_type: 'PHISHING',            result: 'DETECT', detected_at: '2026-03-23T12:09:00' },
-  { log_id:  8, rule_id: 2, rule_name: 'RULE_CRED_GS25_011',   attack_type: 'CREDENTIAL_STUFFING', result: 'BLOCK',  detected_at: '2026-03-23T11:38:00' },
-  { log_id:  9, rule_id: 4, rule_name: 'RULE_WEB_STRUTS_003',  attack_type: 'WEB_ATTACK',          result: 'DETECT', detected_at: '2026-03-23T10:55:00' },
-  { log_id: 10, rule_id: 5, rule_name: 'RULE_DDOS_DNS_005',    attack_type: 'DDOS',                result: 'ALERT',  detected_at: '2026-03-23T10:20:00' },
-  { log_id: 11, rule_id: 1, rule_name: 'RULE_LOCKBIT3_002',    attack_type: 'RANSOMWARE',          result: 'BLOCK',  detected_at: '2026-03-23T09:44:00' },
-  { log_id: 12, rule_id: 2, rule_name: 'RULE_CRED_GS25_011',   attack_type: 'CREDENTIAL_STUFFING', result: 'BLOCK',  detected_at: '2026-03-23T09:10:00' },
-  { log_id: 13, rule_id: 3, rule_name: 'RULE_PHISH_SKT_007',   attack_type: 'PHISHING',            result: 'ALERT',  detected_at: '2026-03-23T08:45:00' },
-  { log_id: 14, rule_id: 4, rule_name: 'RULE_WEB_STRUTS_003',  attack_type: 'WEB_ATTACK',          result: 'BLOCK',  detected_at: '2026-03-23T08:20:00' },
-  { log_id: 15, rule_id: 5, rule_name: 'RULE_DDOS_DNS_005',    attack_type: 'DDOS',                result: 'DETECT', detected_at: '2026-03-23T07:55:00' },
-  { log_id: 16, rule_id: 1, rule_name: 'RULE_LOCKBIT3_002',    attack_type: 'RANSOMWARE',          result: 'BLOCK',  detected_at: '2026-03-22T18:30:00' },
-  { log_id: 17, rule_id: 6, rule_name: 'RULE_RANSOM_CLOP_001', attack_type: 'RANSOMWARE',          result: 'DETECT', detected_at: '2026-03-22T17:10:00' },
-  { log_id: 18, rule_id: 7, rule_name: 'RULE_DDOS_UDP_014',    attack_type: 'DDOS',                result: 'BLOCK',  detected_at: '2026-03-22T16:50:00' },
-  { log_id: 19, rule_id: 8, rule_name: 'RULE_WEB_LOG4J_009',   attack_type: 'WEB_ATTACK',          result: 'ALERT',  detected_at: '2026-03-22T15:30:00' },
-  { log_id: 20, rule_id: 2, rule_name: 'RULE_CRED_GS25_011',   attack_type: 'CREDENTIAL_STUFFING', result: 'DETECT', detected_at: '2026-03-22T14:15:00' },
-  { log_id: 21, rule_id: 9, rule_name: 'RULE_PHISH_KAKAO_002', attack_type: 'PHISHING',            result: 'BLOCK',  detected_at: '2026-03-22T13:40:00' },
-  { log_id: 22, rule_id: 5, rule_name: 'RULE_DDOS_DNS_005',    attack_type: 'DDOS',                result: 'BLOCK',  detected_at: '2026-03-22T12:55:00' },
-  { log_id: 23, rule_id: 4, rule_name: 'RULE_WEB_STRUTS_003',  attack_type: 'WEB_ATTACK',          result: 'DETECT', detected_at: '2026-03-22T11:20:00' },
-  { log_id: 24, rule_id: 1, rule_name: 'RULE_LOCKBIT3_002',    attack_type: 'RANSOMWARE',          result: 'ALERT',  detected_at: '2026-03-22T10:05:00' },
-  { log_id: 25, rule_id: 3, rule_name: 'RULE_PHISH_SKT_007',   attack_type: 'PHISHING',            result: 'DETECT', detected_at: '2026-03-22T09:30:00' },
-];
-
-// ─── [백엔드 연동 시 삭제 끝] ─────────────────────────────────────────────────
 
 // ─── 유틸 ─────────────────────────────────────────────────────────────────────
 
@@ -222,47 +188,24 @@ export default function IdsLogPage() {
         }
         setError(null);
 
-        // ─── [백엔드 연동 시 이 블록 전체 삭제] 목업 처리 ─────────────────────────
-        await new Promise((r) => setTimeout(r, 300));
-        let filtered = [...MOCK_IDS_LOGS];
-        if (idsAttackType) filtered = filtered.filter(l => l.attack_type === idsAttackType);
-        if (idsResult)     filtered = filtered.filter(l => l.result === idsResult);
-        // date_from: 해당 날짜 00:00:00 이후, date_to: 해당 날짜 23:59:59 이전
-        if (idsDateFrom)   filtered = filtered.filter(l => l.detected_at >= idsDateFrom);
-        if (idsDateTo)     filtered = filtered.filter(l => l.detected_at <= idsDateTo + 'T23:59:59');
-
-        // 통계값은 API 명세서 기준 필터 무관 전체 집계
-        setTotalCount(MOCK_IDS_LOGS.length);
-        setAlertCount(MOCK_IDS_LOGS.filter(l => l.result === 'ALERT').length);
-        setBlockedCount(MOCK_IDS_LOGS.filter(l => l.result === 'BLOCK').length);
-        setDetectedCount(MOCK_IDS_LOGS.filter(l => l.result === 'DETECT').length);
-        setTotalPages(Math.max(1, Math.ceil(filtered.length / PAGE_SIZE)));
-
-        const start = (currentPage - 1) * PAGE_SIZE;
-        setIdsLogs(filtered.slice(start, start + PAGE_SIZE));
-        // ─── [백엔드 연동 시 삭제 끝] ──────────────────────────────────────────────
-
-        // ─── [백엔드 연동 시 주석 해제, 위 목업 블록 삭제] 실제 API 호출 ───────────
-        // const r = await api.get('/ctink/logs/ids', {
-        //   params: {
-        //     page:        currentPage,
-        //     attack_type: idsAttackType || undefined, // 빈 문자열이면 파라미터 제외
-        //     result:      idsResult     || undefined,
-        //     date_from:   idsDateFrom   || undefined,
-        //     date_to:     idsDateTo     || undefined,
-        //   },
-        // });
-        // if (cancelled) return; // Race Condition 방지: cleanup 이후 완료된 요청은 상태 업데이트 안 함
-        // setIdsLogs(r.data.logs);
-        // setTotalCount(r.data.total_count);
-        // setAlertCount(r.data.alert_count);
-        // setBlockedCount(r.data.blocked_count);
-        // setDetectedCount(r.data.detected_count);
-        // setTotalPages(r.data.total_pages);
-        // setCurrentPage(r.data.current_page);
-        // setPageInput(String(r.data.current_page));
-        // ─────────────────────────────────────────────────────────────────────────
-
+        const r = await api.get('/ctink/logs/ids', {
+          params: {
+            page:        currentPage,
+            attack_type: idsAttackType || undefined, // 빈 문자열이면 파라미터 제외
+            result:      idsResult     || undefined,
+            date_from:   idsDateFrom   || undefined,
+            date_to:     idsDateTo     || undefined,
+          },
+        });
+        if (cancelled) return; // Race Condition 방지: cleanup 이후 완료된 요청은 상태 업데이트 안 함
+        setIdsLogs(r.data.logs);
+        setTotalCount(r.data.total_count);
+        setAlertCount(r.data.alert_count);
+        setBlockedCount(r.data.blocked_count);
+        setDetectedCount(r.data.detected_count);
+        setTotalPages(r.data.total_pages);
+        setCurrentPage(r.data.current_page);
+        setPageInput(String(r.data.current_page));
       } catch (err) {
         if (cancelled) return; // Race Condition 방지
         // 401(세션 만료)은 api.js 인터셉터에서 전역 처리 (window.location.href = '/login')

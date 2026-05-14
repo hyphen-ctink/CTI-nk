@@ -7,7 +7,6 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import api from '@/lib/api';
 
 // ─── 상수 ────────────────────────────────────────────────────────────────────
-// 키값은 DB ENUM 기준 대문자 (예: RANSOMWARE, HIGH, SNORT)
 
 const ATTACK_TYPE_LABEL = {
   RANSOMWARE:          '랜섬웨어',
@@ -25,48 +24,10 @@ const TRUST_STYLE = {
 };
 
 // Snort/YARA는 react-syntax-highlighter 미지원 → 유사 언어로 대체
-// 키값은 DB ENUM 기준 대문자
 const LANGUAGE_MAP = {
   SNORT: 'nginx', // 키워드 구조 유사
   YARA:  'cpp',   // 문법 구조 유사
 };
-
-// ─── [백엔드 연동 시 이 블록 전체 삭제] 목업 데이터 ──────────────────────────
-
-const MOCK_DETAIL = {
-  cti_id: 1,
-  source_url: 'https://boannews.com/media/view.asp?idx=12345',
-  attack_type: 'RANSOMWARE',
-  ioc_list: [
-    { ioc_type: 'HASH',   ioc_value: 'a3f5c82d91b4e670f3c28d9a1b7e4f21' },
-    { ioc_type: 'IP',     ioc_value: '185.220.101.45'                    },
-    { ioc_type: 'DOMAIN', ioc_value: 'lockbit3-update.ru'                },
-  ],
-  trust_level: 'HIGH',
-  target_rule: {
-    rule_type:       'YARA',
-    rule_id:         3,
-    rule_name:       'RULE_LOCKBIT3_FILE_WIN',
-    status:          'ACTIVE',
-    os_type:         'WINDOWS',
-    rule_content:    'rule LockBit3_Ransomware_Win {\n  strings:\n    $s1 = "lockbit" nocase\n    $s2 = { 4D 5A 90 00 }\n  condition:\n    $s1 and $s2\n}',
-    grammar_detail:  { result: 'pass' },
-    fn_detail:       { result: 'pass', tested: 2, detected: 2 },
-    fp_detail:       { result: 'pass', tested: 100, triggered: 1 },
-    agent_judgement: 'VirusTotal 악성 확인 및 3개 플랫폼 교차 검증 완료',
-    regen_count:     2,
-    created_at:      '2026-03-23T14:32:00',
-  },
-  snort_rules: [
-    { rule_id: 1, rule_name: 'RULE_LOCKBIT3_C2',  rule_content: 'alert tcp any any -> any any (\n  msg:"LockBit3 C2 통신";\n  content:"lockbit3-update.ru";\n  sid:1000001;\n)' },
-    { rule_id: 2, rule_name: 'RULE_LOCKBIT3_DNS', rule_content: 'alert dns any any -> any any (\n  msg:"LockBit3 DNS Query";\n  content:"lockbit3";\n  sid:1000002;\n)' },
-  ],
-  yara_rules: [
-    { rule_id: 4, rule_name: 'RULE_LOCKBIT3_FILE_LINUX', os_type: 'LINUX', rule_content: 'rule LockBit3_Ransomware_Linux {\n  strings:\n    $s1 = "lockbit" nocase\n    $s2 = { 7F 45 4C 46 }\n  condition:\n    $s1 and $s2\n}' },
-  ],
-};
-
-// ─── [백엔드 연동 시 삭제 끝] ─────────────────────────────────────────────────
 
 // ─── 유틸 ─────────────────────────────────────────────────────────────────────
 
@@ -228,30 +189,18 @@ export default function RuleDetailModal({ ruleId, ruleName, onClose }) {
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState(null); // API 에러 메시지 (null이면 미표시)
 
-  // ── [백엔드 연동 시 이 블록 전체 삭제] 목업 데이터 로드 ──────────────────────
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDetail(MOCK_DETAIL);
-      setLoading(false);
-    }, 300);
-    return () => clearTimeout(timer); // unmount 시 타이머 정리
+    setLoading(true);
+    setDetail(null);
+    setError(null);
+    api.get(`/ctink/rules/${ruleId}`)
+      .then(r => setDetail(r.data))
+      .catch(e => {
+        if (e.response?.status === 404) setError('존재하지 않는 정책입니다.');
+        else setError('데이터를 불러오지 못했습니다.');
+      })
+      .finally(() => setLoading(false));
   }, [ruleId]);
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  // ── [백엔드 연동 시 주석 해제] 실제 API 호출 ─────────────────────────────────
-  // useEffect(() => {
-  //   setLoading(true);
-  //   setDetail(null);
-  //   setError(null);
-  //   api.get(`/ctink/rules/${ruleId}`)
-  //     .then(r => setDetail(r.data))
-  //     .catch(e => {
-  //       if (e.response?.status === 404) setError('존재하지 않는 정책입니다.');
-  //       else setError('데이터를 불러오지 못했습니다.');
-  //     })
-  //     .finally(() => setLoading(false));
-  // }, [ruleId]);
-  // ─────────────────────────────────────────────────────────────────────────────
 
   // ESC 키로 모달 닫기
   useEffect(() => {
@@ -263,9 +212,9 @@ export default function RuleDetailModal({ ruleId, ruleName, onClose }) {
   const tr = detail?.target_rule;
 
   // grammar_detail 등이 null이면 검증 전 상태 → VerifyChip/VerifyRow에 null 전달
-  const grammarPass = tr?.grammar_detail ? tr.grammar_detail.result === 'pass' : null;
-  const fnPass      = tr?.fn_detail      ? tr.fn_detail.result      === 'pass' : null;
-  const fpPass      = tr?.fp_detail      ? tr.fp_detail.result      === 'pass' : null;
+  const grammarPass = tr?.grammar_detail ? tr.grammar_detail.grammar_result === 'true' : null;
+  const fnPass      = tr?.fn_detail      ? tr.fn_detail.fn_result            === 'true' : null;
+  const fpPass      = tr?.fp_detail      ? tr.fp_detail.fp_result            === 'true' : null;
 
   return (
     <div

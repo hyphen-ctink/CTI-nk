@@ -2,9 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-
-// [백엔드 연동 시 주석 해제]
-// import api from '@/lib/api';
+import api from '@/lib/api';
 
 /**
  * 자동 세션 만료 훅 (UINFR-SEC-002)
@@ -19,12 +17,11 @@ export function useAutoLogout(timeoutMs = 30 * 60 * 1000) {
   useEffect(() => {
     const handleLogout = async () => {
       sessionStorage.clear();
-      // [백엔드 연동 시 주석 해제] 서버 세션 명시적 무효화
-      // try {
-      //   await api.post('/ctink/auth/logout');
-      // } catch {
-      //   // 로그아웃 API 실패해도 클라이언트는 로그인 페이지로 이동
-      // }
+      try {
+        await api.post('/ctink/auth/logout');
+      } catch {
+        // 로그아웃 API 실패해도 클라이언트는 로그인 페이지로 이동
+      }
       router.replace('/login');
     };
 

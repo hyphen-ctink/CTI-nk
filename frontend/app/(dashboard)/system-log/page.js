@@ -21,37 +21,6 @@ const SYS_STATUS_STYLE = {
 
 const PAGE_SIZE = 15; // API 명세 고정값
 
-// ─── [TODO: 연동 시 삭제] 목업 데이터 ────────────────────────────────────────
-// 백엔드 연동 후 아래 MOCK_SYS_LOGS 상수 전체를 삭제할 것
-
-const MOCK_SYS_LOGS = [
-  { log_id:  1, stage: 'APPLY',   status: 'SUCCESS', message: 'RULE_LOCKBIT3_002 YARA/Snort IDS 자동 적용',  cti_id:  3, rule_id:  1, created_at: '2026-03-23T14:35:00' },
-  { log_id:  2, stage: 'PROCESS', status: 'SUCCESS', message: '정책 생성 완료',                              cti_id:  3, rule_id:  1, created_at: '2026-03-23T14:34:00' },
-  { log_id:  3, stage: 'PROCESS', status: 'SUCCESS', message: 'CTI 데이터 12건 AI Agent 전송 완료',          cti_id:  3, rule_id: null, created_at: '2026-03-23T14:33:00' },
-  { log_id:  4, stage: 'COLLECT', status: 'SUCCESS', message: '보안뉴스 RSS 12건 수집 완료',                 cti_id:  3, rule_id: null, created_at: '2026-03-23T14:32:00' },
-  { log_id:  5, stage: 'APPLY',   status: 'SUCCESS', message: 'RULE_PHISH_SKT_007 Snort 적용 승인 요청',    cti_id:  7, rule_id:  3, created_at: '2026-03-23T13:22:00' },
-  { log_id:  6, stage: 'PROCESS', status: 'FAILURE', message: '정책 생성 실패',                              cti_id:  7, rule_id: null, created_at: '2026-03-23T13:20:00' },
-  { log_id:  7, stage: 'PROCESS', status: 'FAILURE', message: 'IoC 추출 실패',                              cti_id:  5, rule_id: null, created_at: '2026-03-23T12:10:00' },
-  { log_id:  8, stage: 'COLLECT', status: 'SUCCESS', message: 'The Hacker News RSS 8건 수집 완료',           cti_id:  2, rule_id: null, created_at: '2026-03-23T11:00:00' },
-  { log_id:  9, stage: 'PROCESS', status: 'SUCCESS', message: 'CTI 데이터 8건 AI Agent 전송 완료',           cti_id:  2, rule_id: null, created_at: '2026-03-23T11:05:00' },
-  { log_id: 10, stage: 'APPLY',   status: 'SUCCESS', message: 'RULE_CRED_GS25_011 Snort 룰 IDS 자동 적용',  cti_id:  2, rule_id:  2, created_at: '2026-03-23T11:10:00' },
-  { log_id: 11, stage: 'REMOVED', status: 'SUCCESS', message: 'RULE_WEB_OLD_001 만료 처리',                  cti_id:  1, rule_id:  9, created_at: '2026-03-22T18:00:00' },
-  { log_id: 12, stage: 'COLLECT', status: 'FAILURE', message: 'GitHub Discussions API 응답 없음',            cti_id: null, rule_id: null, created_at: '2026-03-22T16:00:00' },
-  { log_id: 13, stage: 'COLLECT', status: 'SUCCESS', message: 'OTX AlienVault 21건 수집 완료',               cti_id:  8, rule_id: null, created_at: '2026-03-22T15:10:00' },
-  { log_id: 14, stage: 'PROCESS', status: 'SUCCESS', message: 'CTI 데이터 21건 AI Agent 전송 완료',          cti_id:  8, rule_id: null, created_at: '2026-03-22T15:12:00' },
-  { log_id: 15, stage: 'APPLY',   status: 'SUCCESS', message: 'RULE_DDOS_AV_008 YARA/Snort IDS 자동 적용',  cti_id:  8, rule_id:  5, created_at: '2026-03-22T15:18:00' },
-  { log_id: 16, stage: 'COLLECT', status: 'SUCCESS', message: 'Reddit r/threatintel 6건 수집 완료',          cti_id:  9, rule_id: null, created_at: '2026-03-22T14:00:00' },
-  { log_id: 17, stage: 'PROCESS', status: 'FAILURE', message: 'IoC 추출 실패',                              cti_id:  9, rule_id: null, created_at: '2026-03-22T14:05:00' },
-  { log_id: 18, stage: 'COLLECT', status: 'SUCCESS', message: 'Exploit Database RSS 4건 수집 완료',          cti_id: 10, rule_id: null, created_at: '2026-03-22T13:00:00' },
-  { log_id: 19, stage: 'PROCESS', status: 'SUCCESS', message: '정책 생성 완료',                              cti_id: 10, rule_id:  7, created_at: '2026-03-22T13:04:00' },
-  { log_id: 20, stage: 'APPLY',   status: 'SUCCESS', message: 'RULE_WEB_EDB_007 Snort 룰 IDS 자동 적용',    cti_id: 10, rule_id:  7, created_at: '2026-03-22T13:09:00' },
-  { log_id: 21, stage: 'COLLECT', status: 'SUCCESS', message: 'MalwareBazaar 해시값 17건 수집 완료',          cti_id: 11, rule_id: null, created_at: '2026-03-22T11:30:00' },
-  { log_id: 22, stage: 'PROCESS', status: 'SUCCESS', message: 'CTI 데이터 17건 AI Agent 전송 완료',          cti_id: 11, rule_id: null, created_at: '2026-03-22T11:33:00' },
-  { log_id: 23, stage: 'PROCESS', status: 'FAILURE', message: '정책 생성 실패',                              cti_id: 11, rule_id: null, created_at: '2026-03-22T11:40:00' },
-  { log_id: 24, stage: 'APPLY',   status: 'SUCCESS', message: 'RULE_RANS_MB_008 YARA 룰 IDS 자동 적용',     cti_id: 11, rule_id:  8, created_at: '2026-03-22T11:48:00' },
-  { log_id: 25, stage: 'REMOVED', status: 'SUCCESS', message: 'RULE_CRED_OLD_003 만료 처리',                 cti_id:  4, rule_id: 10, created_at: '2026-03-22T10:00:00' },
-];
-
 // ─── 유틸 ─────────────────────────────────────────────────────────────────────
 
 function formatDate(iso) {
@@ -195,72 +164,47 @@ export default function SystemLogPage() {
   const [totalPages,   setTotalPages]   = useState(1);
 
   useEffect(() => {
-    // ── [TODO: 연동 시] AbortController 주석 해제 ──
-    // const controller = new AbortController();
+    const controller = new AbortController();
 
     setIsLoading(true);
     setError(null);
 
-    // ── [TODO: 연동 시] 아래 주석을 해제하고, 그 아래 목업 블록 전체를 삭제할 것 ──
-    // api.get('/ctink/logs/system', {
-    //   params: {
-    //     page:      currentPage,
-    //     stage:     sysStage    || undefined,
-    //     status:    sysStatus   || undefined,
-    //     date_from: sysDateFrom || undefined,
-    //     date_to:   sysDateTo   || undefined,
-    //   },
-    //   signal: controller.signal, // 필터 변경 시 이전 요청 취소
-    // })
-    //   .then(r => {
-    //     setSysLogs(r.data.logs);
-    //     setTotalCount(r.data.total_count);
-    //     setSuccessCount(r.data.success_count);
-    //     setFailureCount(r.data.failure_count);
-    //     setTotalPages(r.data.total_pages);
-    //     // [수정] API 명세 응답 필드 current_page 반영 — 서버 기준 페이지로 동기화
-    //     setCurrentPage(r.data.current_page);
-    //     setPageInput(String(r.data.current_page));
-    //     setError(null);
-    //   })
-    //   .catch((err) => {
-    //     if (err.name === 'CanceledError') return; // abort된 요청은 에러 처리 생략
-    //     // [수정] 400: 잘못된 날짜 범위 (API 명세 상태 코드)
-    //     if (err.response?.status === 400) {
-    //       setError('날짜 범위가 올바르지 않습니다. 시작일이 종료일보다 클 수 없습니다.');
-    //     } else {
-    //       setError('로그를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
-    //     }
-    //     setSysLogs([]);
-    //     setTotalCount(0);
-    //     setSuccessCount(0);
-    //     setFailureCount(0);
-    //     setTotalPages(1);
-    //   })
-    //   .finally(() => setIsLoading(false));
+    api.get('/ctink/logs/system', {
+      params: {
+        page:      currentPage,
+        stage:     sysStage    || undefined,
+        status:    sysStatus   || undefined,
+        date_from: sysDateFrom || undefined,
+        date_to:   sysDateTo   || undefined,
+      },
+      signal: controller.signal, // 필터 변경 시 이전 요청 취소
+    })
+      .then(r => {
+        setSysLogs(r.data.logs);
+        setTotalCount(r.data.total_count);
+        setSuccessCount(r.data.success_count);
+        setFailureCount(r.data.failure_count);
+        setTotalPages(r.data.total_pages);
+        setCurrentPage(r.data.current_page);
+        setPageInput(String(r.data.current_page));
+        setError(null);
+      })
+      .catch((err) => {
+        if (err.name === 'CanceledError') return; // abort된 요청은 에러 처리 생략
+        if (err.response?.status === 400) {
+          setError('날짜 범위가 올바르지 않습니다. 시작일이 종료일보다 클 수 없습니다.');
+        } else {
+          setError('로그를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+        }
+        setSysLogs([]);
+        setTotalCount(0);
+        setSuccessCount(0);
+        setFailureCount(0);
+        setTotalPages(1);
+      })
+      .finally(() => setIsLoading(false));
 
-    // ── [TODO: 연동 시 삭제] 목업 블록 시작 ──────────────────────────────────────
-    setTimeout(() => {
-      let filtered = [...MOCK_SYS_LOGS];
-      if (sysStage)    filtered = filtered.filter(l => l.stage === sysStage);
-      if (sysStatus)   filtered = filtered.filter(l => l.status === sysStatus);
-      if (sysDateFrom) filtered = filtered.filter(l => l.created_at >= sysDateFrom);
-      if (sysDateTo)   filtered = filtered.filter(l => l.created_at <= sysDateTo + 'T23:59:59');
-
-      // total_count / success_count / failure_count 는 API 명세상 필터 무관 전체 기준
-      setTotalCount(MOCK_SYS_LOGS.length);
-      setSuccessCount(MOCK_SYS_LOGS.filter(l => l.status === 'SUCCESS').length);
-      setFailureCount(MOCK_SYS_LOGS.filter(l => l.status === 'FAILURE').length);
-      setTotalPages(Math.max(1, Math.ceil(filtered.length / PAGE_SIZE)));
-
-      const start = (currentPage - 1) * PAGE_SIZE;
-      setSysLogs(filtered.slice(start, start + PAGE_SIZE));
-      setIsLoading(false);
-    }, 300);
-    // ── [TODO: 연동 시 삭제] 목업 블록 끝 ────────────────────────────────────────
-
-    // ── [TODO: 연동 시] 아래 주석 해제 — 언마운트 또는 의존성 변경 시 이전 요청 취소 ──
-    // return () => controller.abort();
+    return () => controller.abort();
 
   }, [currentPage, sysStage, sysStatus, sysDateFrom, sysDateTo]);
 
