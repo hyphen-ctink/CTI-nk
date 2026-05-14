@@ -1,4 +1,4 @@
-package hyphen.ctink.domain.collector;
+package hyphen.ctink.domain.indicator;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -8,12 +8,12 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @EnableScheduling
-public class CollectorSchedular {
+public class SearchIocSchedular {
 
-    private final CollectorSchedularService schedularService;
+    private final SearchIocService updateTrustLevelService;
 
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 0 3 * * MON")
     public void run() {
-        schedularService.runCollection();
+        updateTrustLevelService.searchIoc();
     }
 }

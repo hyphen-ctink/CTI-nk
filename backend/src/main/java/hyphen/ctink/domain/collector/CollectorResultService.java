@@ -8,6 +8,7 @@ import hyphen.ctink.domain.platform.CollectionPlatform;
 import hyphen.ctink.domain.platform.CollectionPlatformRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +18,7 @@ public class CollectorResultService {
     private final CtiDataRepository ctiDataRepository;
     private final CollectionPlatformRepository collectionPlatformRepository;
 
+    @Transactional
     public void process(CollectorResultDTO result) {
         if (!"success".equals(result.status())) {
             return;
@@ -41,5 +43,7 @@ public class CollectorResultService {
                 .build();
 
         ctiDataRepository.save(entity);
+
+        platform.updateLastCollectedAt(LocalDateTime.now());
     }
 }
