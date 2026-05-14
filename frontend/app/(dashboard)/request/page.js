@@ -18,65 +18,6 @@ const ATTACK_TYPE_LABEL = {
 const RULE_PAGE_SIZE         = 5;
 const OTHER_THREAT_PAGE_SIZE = 10;
 
-// ─── 목업 데이터 (API 연동 시 이 섹션 전체 삭제) ─────────────────────────────
-
-const ALL_MOCK_RULES = [
-  { rule_id:  1, rule_name: 'RULE_DDOS_DNS_005',   rule_type: 'SNORT', attack_type: 'DDOS',                trust_level: 'LOW', created_at: '2026-03-23T14:10:00' },
-  { rule_id:  2, rule_name: 'RULE_PHISH_SKT_007',  rule_type: 'SNORT', attack_type: 'PHISHING',            trust_level: 'LOW', created_at: '2026-03-23T13:45:00' },
-  { rule_id:  3, rule_name: 'RULE_LOCKBIT3_002',   rule_type: 'SNORT', attack_type: 'RANSOMWARE',          trust_level: 'LOW', created_at: '2026-03-23T13:02:00' },
-  { rule_id:  4, rule_name: 'RULE_CRED_GS25_011',  rule_type: 'SNORT', attack_type: 'CREDENTIAL_STUFFING', trust_level: 'LOW', created_at: '2026-03-23T12:30:00' },
-  { rule_id:  5, rule_name: 'RULE_WEB_STRUTS_003', rule_type: 'SNORT', attack_type: 'WEB_ATTACK',          trust_level: 'LOW', created_at: '2026-03-23T11:58:00' },
-  { rule_id:  6, rule_name: 'RULE_DDOS_DNS_006',   rule_type: 'SNORT', attack_type: 'DDOS',                trust_level: 'LOW', created_at: '2026-03-23T11:20:00' },
-  { rule_id:  7, rule_name: 'RULE_PHISH_SKT_008',  rule_type: 'SNORT', attack_type: 'PHISHING',            trust_level: 'LOW', created_at: '2026-03-23T10:44:00' },
-  { rule_id:  8, rule_name: 'RULE_LOCKBIT3_003',   rule_type: 'SNORT', attack_type: 'RANSOMWARE',          trust_level: 'LOW', created_at: '2026-03-23T10:12:00' },
-  { rule_id:  9, rule_name: 'RULE_LOCKBIT3_002',   rule_type: 'YARA',  attack_type: 'RANSOMWARE',          trust_level: 'LOW', created_at: '2026-03-23T14:32:00' },
-  { rule_id: 10, rule_name: 'RULE_CRED_GS25_011',  rule_type: 'YARA',  attack_type: 'CREDENTIAL_STUFFING', trust_level: 'LOW', created_at: '2026-03-23T13:51:00' },
-  { rule_id: 11, rule_name: 'RULE_PHISH_SKT_007',  rule_type: 'YARA',  attack_type: 'PHISHING',            trust_level: 'LOW', created_at: '2026-03-23T13:20:00' },
-  { rule_id: 12, rule_name: 'RULE_WEB_STRUTS_003', rule_type: 'YARA',  attack_type: 'WEB_ATTACK',          trust_level: 'LOW', created_at: '2026-03-23T12:47:00' },
-  { rule_id: 13, rule_name: 'RULE_DDOS_DNS_005',   rule_type: 'YARA',  attack_type: 'DDOS',                trust_level: 'LOW', created_at: '2026-03-23T12:10:00' },
-  { rule_id: 14, rule_name: 'RULE_PHISH_SKT_008',  rule_type: 'YARA',  attack_type: 'PHISHING',            trust_level: 'LOW', created_at: '2026-03-23T11:38:00' },
-  { rule_id: 15, rule_name: 'RULE_LOCKBIT3_003',   rule_type: 'YARA',  attack_type: 'RANSOMWARE',          trust_level: 'LOW', created_at: '2026-03-23T10:55:00' },
-  { rule_id: 16, rule_name: 'RULE_CRED_GS25_012',  rule_type: 'YARA',  attack_type: 'CREDENTIAL_STUFFING', trust_level: 'LOW', created_at: '2026-03-23T10:21:00' },
-  { rule_id: 17, rule_name: 'RULE_DDOS_DNS_007',   rule_type: 'YARA',  attack_type: 'DDOS',                trust_level: 'LOW', created_at: '2026-03-23T09:44:00' },
-  { rule_id: 18, rule_name: 'RULE_WEB_EDB_009',    rule_type: 'YARA',  attack_type: 'WEB_ATTACK',          trust_level: 'LOW', created_at: '2026-03-23T09:20:00' },
-  { rule_id: 19, rule_name: 'RULE_LOCKBIT3_004',   rule_type: 'YARA',  attack_type: 'RANSOMWARE',          trust_level: 'LOW', created_at: '2026-03-23T09:00:00' },
-];
-
-const ALL_MOCK_OTHER_THREATS = [
-  { notification_id:  1, suspected_type: 'Supply Chain Attack',       created_at: '2026-03-23T14:55:00' },
-  { notification_id:  2, suspected_type: 'Zero-Day Exploit',          created_at: '2026-03-23T13:30:00' },
-  { notification_id:  3, suspected_type: 'Insider Threat',            created_at: '2026-03-23T12:10:00' },
-  { notification_id:  4, suspected_type: 'DNS Tunneling',             created_at: '2026-03-23T11:45:00' },
-  { notification_id:  5, suspected_type: 'Business Email Compromise', created_at: '2026-03-23T10:22:00' },
-  { notification_id:  6, suspected_type: 'Cryptojacking',             created_at: '2026-03-23T09:58:00' },
-  { notification_id:  7, suspected_type: null,                        created_at: '2026-03-23T09:31:00' },
-  { notification_id:  8, suspected_type: 'Watering Hole Attack',      created_at: '2026-03-23T08:44:00' },
-  { notification_id:  9, suspected_type: 'Man-in-the-Browser',        created_at: '2026-03-23T08:10:00' },
-  { notification_id: 10, suspected_type: 'Fileless Malware',          created_at: '2026-03-23T07:52:00' },
-  { notification_id: 11, suspected_type: 'SIM Swapping',              created_at: '2026-03-22T22:15:00' },
-  { notification_id: 12, suspected_type: 'BGP Hijacking',             created_at: '2026-03-22T21:40:00' },
-];
-
-// [API 연동 시 이 섹션 전체 삭제] 목업 fetch 함수
-function mockFetchRules(rule_type, page) {
-  const filtered     = ALL_MOCK_RULES.filter(r => r.rule_type === rule_type);
-  const total_count  = filtered.length;
-  const total_pages  = Math.max(1, Math.ceil(total_count / RULE_PAGE_SIZE));
-  const current_page = Math.min(page, total_pages);
-  const start        = (current_page - 1) * RULE_PAGE_SIZE;
-  const rules        = filtered.slice(start, start + RULE_PAGE_SIZE);
-  return { total_count, total_pages, current_page, rules };
-}
-
-function mockFetchOtherThreats(page) {
-  const total_count   = ALL_MOCK_OTHER_THREATS.length;
-  const total_pages   = Math.max(1, Math.ceil(total_count / OTHER_THREAT_PAGE_SIZE));
-  const current_page  = Math.min(page, total_pages);
-  const start         = (current_page - 1) * OTHER_THREAT_PAGE_SIZE;
-  const notifications = ALL_MOCK_OTHER_THREATS.slice(start, start + OTHER_THREAT_PAGE_SIZE);
-  return { total_count, total_pages, current_page, notifications };
-}
-
 // ─── 유틸 ─────────────────────────────────────────────────────────────────────
 
 function formatDate(iso) {
@@ -436,26 +377,15 @@ function SectionCard({ title, ruleType, decisions, isAdmin, onDecision, processi
     setIsLoading(true);
     setHasError(false);
     try {
-      // [API 연동 시 주석 해제 후 아래 목업 블록 삭제] ─────────────────────────
-      // const res = await api.get('/ctink/notifications/rules/pending', {
-      //   params: { rule_type: ruleType, page },
-      // });
-      // const { rules, total_count, total_pages, current_page } = res.data;
-      // setRules(rules);
-      // setTotalCount(total_count);
-      // setTotalPages(total_pages);
-      // setCurrentPage(current_page);
-      // setLocalDecidedCount(0);
-      // ─────────────────────────────────────────────────────────────────────────
-
-      // [API 연동 시 삭제] 목업 블록 ─────────────────────────────────────────────
-      await new Promise(res => setTimeout(res, 300));
-      const { rules, total_count, total_pages, current_page } = mockFetchRules(ruleType, page);
+      const res = await api.get('/ctink/notifications/rules/pending', {
+        params: { rule_type: ruleType, page },
+      });
+      const { rules, total_count, total_pages, current_page } = res.data;
       setRules(rules);
       setTotalCount(total_count);
       setTotalPages(total_pages);
       setCurrentPage(current_page);
-      // ─────────────────────────────────────────────────────────────────────────
+      setLocalDecidedCount(0);
     } catch {
       setHasError(true);
     } finally {
@@ -597,25 +527,14 @@ function OtherThreatSection() {
     setIsLoading(true);
     setHasError(false);
     try {
-      // [API 연동 시 주석 해제 후 아래 목업 블록 삭제] ─────────────────────────
-      // const res = await api.get('/ctink/notifications/other-threat', {
-      //   params: { page },
-      // });
-      // const { notifications, total_count, total_pages, current_page } = res.data;
-      // setNotifications(notifications);
-      // setTotalCount(total_count);
-      // setTotalPages(total_pages);
-      // setCurrentPage(current_page);
-      // ─────────────────────────────────────────────────────────────────────────
-
-      // [API 연동 시 삭제] 목업 블록 ─────────────────────────────────────────────
-      await new Promise(res => setTimeout(res, 300));
-      const { notifications, total_count, total_pages, current_page } = mockFetchOtherThreats(page);
+      const res = await api.get('/ctink/notifications/other-threat', {
+        params: { page },
+      });
+      const { notifications, total_count, total_pages, current_page } = res.data;
       setNotifications(notifications);
       setTotalCount(total_count);
       setTotalPages(total_pages);
       setCurrentPage(current_page);
-      // ─────────────────────────────────────────────────────────────────────────
     } catch {
       setHasError(true);
     } finally {
@@ -687,7 +606,7 @@ export default function RequestPage() {
   // Next.js SSR 환경에서 lazy initializer는 서버 측 렌더링 시 window가 없어 false를 반환하고
   // 이후 재실행되지 않으므로, useEffect로 클라이언트 마운트 후 sessionStorage를 읽어야 함
   useEffect(() => {
-    setIsAdmin(sessionStorage.getItem('role') === 'admin');
+    setIsAdmin(sessionStorage.getItem('role') === 'ADMIN');
   }, []);
 
   const handleDecision = useCallback(async (ruleId, decision) => {
@@ -695,17 +614,10 @@ export default function RequestPage() {
     setProcessingId(key);
 
     try {
-      // [API 연동 시 주석 해제 후 아래 목업 블록 삭제] ─────────────────────────
-      // await api.patch(`/ctink/admin/rules/${ruleId}/decision`, { decision });
-      // ─────────────────────────────────────────────────────────────────────────
-
-      // [API 연동 시 삭제] 목업 블록 ─────────────────────────────────────────────
-      await new Promise(res => setTimeout(res, 300));
-      // ─────────────────────────────────────────────────────────────────────────
+      await api.patch(`/ctink/admin/rules/${ruleId}/decision`, { decision });
 
       setDecisions(prev => ({ ...prev, [ruleId]: decision }));
       return true;
-    // 수정 후
     } catch (err) {
       const status = err.response?.status;
       if      (status === 409) alert('이미 처리된 룰입니다.');

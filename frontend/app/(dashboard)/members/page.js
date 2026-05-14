@@ -5,39 +5,8 @@ import api from '@/lib/api';
 
 // ─── 상수 ────────────────────────────────────────────────────────────────────
 
-const PAGE_SIZE_PENDING = 3; // 신규 가입 요청: 페이지당 3개 고정
-const PAGE_SIZE_USERS   = 5; // 사용자 목록: 페이지당 5개 고정
-
-// ─── 목업 데이터 ──────────────────────────────────────────────────────────────
-// ※ API 연동 시:
-//   1. MOCK_PENDING, MOCK_USERS 상수 전체 삭제
-//   2. 각 fetch 함수 안의 [API 연동 시] 블록 주석 해제
-//   3. 각 fetch 함수 안의 [목업] 블록 전체 삭제
-// ※ phone 필드는 사용자 목록 API 응답에 Nullable로 포함됨
-//   UserDetailPanel 전화번호 항목은 null인 경우 '-' 표시됨
-
-const MOCK_PENDING = [
-  { user_id: 46, name: '강유현',  organization: '개발팀',     position: '주임', email: 'yoohyun.kang@company.com', phone: '010-2345-6789', created_at: '2026-04-28T12:27:00' },
-  { user_id: 47, name: '이효정',  organization: '보안팀',     position: '선임', email: 'hyojeong.lee@company.com',  phone: '010-5678-1234', created_at: '2026-04-28T10:48:00' },
-  { user_id: 48, name: '서민경',  organization: 'IT인프라팀', position: '사원', email: 'mingyung.seo@company.com',  phone: '010-9876-5432', created_at: '2026-04-28T09:22:00' },
-  { user_id: 49, name: '류동현',  organization: '개발팀',     position: '대리', email: 'donghyun.ryu@company.com',  phone: '010-1122-3344', created_at: '2026-04-27T17:05:00' },
-  { user_id: 50, name: '임지수',  organization: '보안팀',     position: '사원', email: 'jisu.lim@company.com',       phone: '010-5566-7788', created_at: '2026-04-27T14:30:00' },
-  { user_id: 51, name: '황민서',  organization: 'IT인프라팀', position: '주임', email: 'minseo.hwang@company.com',  phone: '010-9900-1122', created_at: '2026-04-27T11:10:00' },
-];
-
-const MOCK_USERS = [
-  { user_id: 1,  name: '김민준', organization: '보안팀',     position: '팀장', email: 'minjun.kim@company.com',    role: 'ADMIN', status: 'ACTIVE',   last_login_at: '2026-03-23T14:22:00', phone: '010-1234-5678' },
-  { user_id: 2,  name: '이서연', organization: 'IT인프라팀', position: '선임', email: 'seoyeong.lee@company.com',  role: 'USER',  status: 'ACTIVE',   last_login_at: '2026-03-23T13:47:00', phone: '010-2345-6789' },
-  { user_id: 3,  name: '박지훈', organization: '보안팀',     position: '주임', email: 'jihun.park@company.com',    role: 'USER',  status: 'ACTIVE',   last_login_at: '2026-03-23T11:30:00', phone: '010-3456-7890' },
-  { user_id: 4,  name: '최수아', organization: '개발팀',     position: '과장', email: 'sua.choi@company.com',      role: 'USER',  status: 'ACTIVE',   last_login_at: '2026-03-22T17:55:00', phone: '010-4567-8901' },
-  { user_id: 5,  name: '정태양', organization: 'IT인프라팀', position: '사원', email: 'taeyang.jung@company.com',  role: 'USER',  status: 'INACTIVE', last_login_at: '2026-03-20T09:10:00', phone: '010-5678-9012' },
-  { user_id: 6,  name: '한수진', organization: '보안팀',     position: '사원', email: 'sujin.han@company.com',     role: 'USER',  status: 'LOCKED',   last_login_at: '2026-03-19T16:40:00', phone: '010-6789-0123' },
-  { user_id: 7,  name: '오준혁', organization: '개발팀',     position: '대리', email: 'junhyuk.oh@company.com',    role: 'USER',  status: 'ACTIVE',   last_login_at: '2026-03-19T14:20:00', phone: '010-7890-1234' },
-  { user_id: 8,  name: '윤채원', organization: '보안팀',     position: '사원', email: 'chaewon.yoon@company.com',  role: 'USER',  status: 'ACTIVE',   last_login_at: '2026-03-18T10:05:00', phone: '010-8901-2345' },
-  { user_id: 9,  name: '송다은', organization: 'IT인프라팀', position: '선임', email: 'daeun.song@company.com',    role: 'USER',  status: 'ACTIVE',   last_login_at: '2026-03-17T09:30:00', phone: '010-9012-3456' },
-  { user_id: 10, name: '권혁준', organization: '개발팀',     position: '주임', email: 'hyukjun.kwon@company.com',  role: 'USER',  status: 'INACTIVE', last_login_at: '2026-03-15T16:00:00', phone: '010-0123-4567' },
-  { user_id: 11, name: '노지현', organization: '보안팀',     position: '사원', email: 'jihyun.noh@company.com',    role: 'USER',  status: 'ACTIVE',   last_login_at: '2026-03-14T11:20:00', phone: '010-1234-0000' },
-];
+// const PAGE_SIZE_PENDING = 3; // 신규 가입 요청: 페이지당 3개 고정
+// const PAGE_SIZE_USERS   = 5; // 사용자 목록: 페이지당 5개 고정
 
 // ─── 유틸 ─────────────────────────────────────────────────────────────────────
 
@@ -382,25 +351,12 @@ function PendingSection() {
     setIsLoading(true);
     setFetchError(false);
     try {
-      // ─ [API 연동 시] 아래 주석 해제 후 [목업] 블록 전체 삭제 ─────────────
-      // const res = await api.get('/ctink/admin/users/pending', { params: { page } });
-      // const { users, total_count, total_pages, current_page } = res.data;
-      // setPending(users);
-      // setTotalCount(total_count);
-      // setTotalPages(total_pages);
-      // setCurrentPage(current_page);
-      // ────────────────────────────────────────────────────────────────────
-
-      // ─ [목업] API 연동 시 아래 블록 전체 삭제 ────────────────────────────
-      await new Promise(r => setTimeout(r, 300));
-      const total = MOCK_PENDING.length;
-      const pages = Math.max(1, Math.ceil(total / PAGE_SIZE_PENDING));
-      const cur   = Math.min(page, pages);
-      setPending(MOCK_PENDING.slice((cur - 1) * PAGE_SIZE_PENDING, cur * PAGE_SIZE_PENDING));
-      setTotalCount(total);
-      setTotalPages(pages);
-      setCurrentPage(cur);
-      // ─────────────────────────────────────────────────────────────────────
+      const res = await api.get('/ctink/admin/users/pending', { params: { page } });
+      const { users, total_count, total_pages, current_page } = res.data;
+      setPending(users);
+      setTotalCount(total_count);
+      setTotalPages(total_pages);
+      setCurrentPage(current_page);
 
       setDecisions({}); // 페이지 이동 시 이전 결정 상태 초기화
     } catch (err) {
@@ -416,17 +372,9 @@ function PendingSection() {
   const handleDecision = async (targetUserId, decision) => {
     setProcessingId(`${targetUserId}_${decision}`);
     try {
-      // ─ [API 연동 시] 아래 3줄 주석 해제 후 [목업] 블록 전체 삭제 ──────────
-      // await api.patch(`/ctink/admin/users/${targetUserId}/decision`, { decision: decision.toUpperCase() });
-      // await fetchPending(currentPage); // 승인/거부 후 목록 재조회 (서버에서 해당 레코드 삭제됨)
-      // return;
-      // ────────────────────────────────────────────────────────────────────
-
-      // ─ [목업] API 연동 시 아래 블록 전체 삭제 ────────────────────────────
-      await new Promise(r => setTimeout(r, 300));
-      setDecisions(prev => ({ ...prev, [targetUserId]: decision }));
-      // ─────────────────────────────────────────────────────────────────────
-
+      await api.patch(`/ctink/admin/users/${targetUserId}/decision`, { decision: decision.toUpperCase() });
+      await fetchPending(currentPage); // 승인/거부 후 목록 재조회 (서버에서 해당 레코드 삭제됨)
+      return;
     } catch (err) {
       const s = err.response?.status;
       if      (s === 400) alert('잘못된 요청입니다.');
@@ -577,30 +525,22 @@ function UsersSection() {
   const [isLoading,        setIsLoading]        = useState(true);
   const [fetchError,       setFetchError]       = useState(false);
   const [selectedUser,     setSelectedUser]     = useState(null); // 상세 패널 표시 대상
+  const [myUserId, setMyUserId] = useState(null);
+
+  useEffect(() => {
+    api.get('/ctink/profile').then(r => setMyUserId(r.data.user_id));
+  }, []);
 
   const fetchUsers = useCallback(async (page) => {
     setIsLoading(true);
     setFetchError(false);
     try {
-      // ─ [API 연동 시] 아래 주석 해제 후 [목업] 블록 전체 삭제 ─────────────
-      // const res = await api.get('/ctink/admin/users', { params: { page } });
-      // const { users, total_count, total_pages, current_page } = res.data;
-      // setUsers(users);
-      // setTotalCount(total_count);
-      // setTotalPages(total_pages);
-      // setCurrentPage(current_page);
-      // ────────────────────────────────────────────────────────────────────
-
-      // ─ [목업] API 연동 시 아래 블록 전체 삭제 ────────────────────────────
-      await new Promise(r => setTimeout(r, 300));
-      const total = MOCK_USERS.length;
-      const pages = Math.max(1, Math.ceil(total / PAGE_SIZE_USERS));
-      const cur   = Math.min(page, pages);
-      setUsers(MOCK_USERS.slice((cur - 1) * PAGE_SIZE_USERS, cur * PAGE_SIZE_USERS));
-      setTotalCount(total);
-      setTotalPages(pages);
-      setCurrentPage(cur);
-      // ─────────────────────────────────────────────────────────────────────
+      const res = await api.get('/ctink/admin/users', { params: { page } });
+      const { users, total_count, total_pages, current_page } = res.data;
+      setUsers(users);
+      setTotalCount(total_count);
+      setTotalPages(total_pages);
+      setCurrentPage(current_page);
 
       setStatusMap({});
       setRoleMap({});
@@ -622,13 +562,7 @@ function UsersSection() {
 
     setProcessingId(`status_${user.user_id}`);
     try {
-      // ─ [API 연동 시] 아래 주석 해제 후 [목업] 블록 전체 삭제 ─────────────
-      // await api.patch(`/ctink/admin/users/${user.user_id}`, { status: nextStatus });
-      // ────────────────────────────────────────────────────────────────────
-
-      // ─ [목업] API 연동 시 아래 블록 전체 삭제 ────────────────────────────
-      await new Promise(r => setTimeout(r, 300));
-      // ─────────────────────────────────────────────────────────────────────
+      await api.patch(`/ctink/admin/users/${user.user_id}`, { status: nextStatus });
 
       setStatusMap(prev => ({ ...prev, [user.user_id]: nextStatus }));
       if (selectedUser?.user_id === user.user_id) {
@@ -653,13 +587,7 @@ function UsersSection() {
 
     setProcessingRoleId(user.user_id);
     try {
-      // ─ [API 연동 시] 아래 주석 해제 후 [목업] 블록 전체 삭제 ─────────────
-      // await api.patch(`/ctink/admin/users/${user.user_id}`, { role: nextRole });
-      // ────────────────────────────────────────────────────────────────────
-
-      // ─ [목업] API 연동 시 아래 블록 전체 삭제 ────────────────────────────
-      await new Promise(r => setTimeout(r, 300));
-      // ─────────────────────────────────────────────────────────────────────
+      await api.patch(`/ctink/admin/users/${user.user_id}`, { role: nextRole });
 
       setRoleMap(prev => ({ ...prev, [user.user_id]: nextRole }));
       if (selectedUser?.user_id === user.user_id) {
@@ -793,14 +721,16 @@ function UsersSection() {
                             bg={isSelected ? 'rgba(63,114,175,0.12)' : 'rgba(15,110,86,0.08)'}
                             onClick={() => handleDetailClick(user)}
                           />
-                          <ActionButton
-                            label={toggleLabel}
-                            color={toggleColor}
-                            bg={toggleBg}
-                            loading={isProcessing}
-                            disabled={isProcessing}
-                            onClick={() => handleToggleStatus(user)}
-                          />
+                          {user.user_id !== myUserId && (
+                            <ActionButton
+                              label={toggleLabel}
+                              color={toggleColor}
+                              bg={toggleBg}
+                              loading={isProcessing}
+                              disabled={isProcessing}
+                              onClick={() => handleToggleStatus(user)}
+                            />
+                          )}
                         </div>
                       </td>
                     </tr>

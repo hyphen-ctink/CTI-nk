@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import RuleDetailModal from '@/components/common/RuleDetailModal';
 import api from '@/lib/api';
 
 // ─── 상수 ────────────────────────────────────────────────────────────────────
-// 키값은 DB ENUM 기준 대문자 (예: SNORT, WEB_ATTACK, HIGH, PENDING)
 
 const RULE_TYPE_LABEL = {
   SNORT: 'Snort',
@@ -43,38 +42,6 @@ const TRUST_STYLE = {
 };
 
 const PAGE_SIZE = 15; // API 명세서: 페이지당 항목 수 15개 고정
-
-// ─── [백엔드 연동 시 이 블록 전체 삭제] 목업 데이터 ───────────────────────────
-
-const MOCK_RULES = [
-  { rule_id:  1, rule_type: 'SNORT', rule_name: 'RULE_LOCKBIT3_002',        attack_type: 'RANSOMWARE',          trust_level: 'HIGH',   status: 'ACTIVE',   created_at: '2026-03-23T14:32:00' },
-  { rule_id:  2, rule_type: 'SNORT', rule_name: 'RULE_CRED_GS25_011',       attack_type: 'CREDENTIAL_STUFFING', trust_level: 'HIGH',   status: 'ACTIVE',   created_at: '2026-03-23T13:10:00' },
-  { rule_id:  3, rule_type: 'YARA',  rule_name: 'RULE_PHISH_SKT_007',       attack_type: 'PHISHING',            trust_level: 'MEDIUM', status: 'INACTIVE', created_at: '2026-03-23T11:55:00' },
-  { rule_id:  4, rule_type: 'SNORT', rule_name: 'RULE_WEB_STRUTS_003',      attack_type: 'WEB_ATTACK',          trust_level: 'HIGH',   status: 'ACTIVE',   created_at: '2026-03-23T10:40:00' },
-  { rule_id:  5, rule_type: 'SNORT', rule_name: 'RULE_DDOS_DNS_005',        attack_type: 'DDOS',                trust_level: 'MEDIUM', status: 'PENDING',  created_at: '2026-03-23T09:20:00' },
-  { rule_id:  6, rule_type: 'YARA',  rule_name: 'RULE_PHISH_KAKAO_002',     attack_type: 'PHISHING',            trust_level: 'LOW',    status: 'PENDING',  created_at: '2026-03-22T18:00:00' },
-  { rule_id:  7, rule_type: 'YARA',  rule_name: 'RULE_RANSOM_CLOP_001',     attack_type: 'RANSOMWARE',          trust_level: 'HIGH',   status: 'ACTIVE',   created_at: '2026-03-22T15:30:00' },
-  { rule_id:  8, rule_type: 'SNORT', rule_name: 'RULE_WEB_LOG4J_009',       attack_type: 'WEB_ATTACK',          trust_level: 'MEDIUM', status: 'ACTIVE',   created_at: '2026-03-22T12:10:00' },
-  { rule_id:  9, rule_type: 'SNORT', rule_name: 'RULE_DDOS_UDP_014',        attack_type: 'DDOS',                trust_level: 'HIGH',   status: 'ACTIVE',   created_at: '2026-03-22T09:05:00' },
-  { rule_id: 10, rule_type: 'SNORT', rule_name: 'RULE_CRED_NAVER_004',      attack_type: 'CREDENTIAL_STUFFING', trust_level: 'MEDIUM', status: 'PENDING',  created_at: '2026-03-21T17:40:00' },
-  { rule_id: 11, rule_type: 'YARA',  rule_name: 'RULE_RANSOM_HIVE_006',     attack_type: 'RANSOMWARE',          trust_level: 'LOW',    status: 'PENDING',  created_at: '2026-03-21T15:20:00' },
-  { rule_id: 12, rule_type: 'SNORT', rule_name: 'RULE_WEB_SQLINJ_008',      attack_type: 'WEB_ATTACK',          trust_level: 'HIGH',   status: 'ACTIVE',   created_at: '2026-03-21T13:00:00' },
-  { rule_id: 13, rule_type: 'YARA',  rule_name: 'RULE_PHISH_DAUM_003',      attack_type: 'PHISHING',            trust_level: 'MEDIUM', status: 'ACTIVE',   created_at: '2026-03-21T10:30:00' },
-  { rule_id: 14, rule_type: 'SNORT', rule_name: 'RULE_DDOS_SYN_007',        attack_type: 'DDOS',                trust_level: 'LOW',    status: 'INACTIVE', created_at: '2026-03-20T16:55:00' },
-  { rule_id: 15, rule_type: 'YARA',  rule_name: 'RULE_RANSOM_BLACKCAT_003', attack_type: 'RANSOMWARE',          trust_level: 'HIGH',   status: 'ACTIVE',   created_at: '2026-03-20T14:10:00' },
-  { rule_id: 16, rule_type: 'SNORT', rule_name: 'RULE_CRED_SAMSUNG_002',    attack_type: 'CREDENTIAL_STUFFING', trust_level: 'HIGH',   status: 'ACTIVE',   created_at: '2026-03-20T11:45:00' },
-  { rule_id: 17, rule_type: 'SNORT', rule_name: 'RULE_WEB_XSS_011',         attack_type: 'WEB_ATTACK',          trust_level: 'MEDIUM', status: 'PENDING',  created_at: '2026-03-20T09:20:00' },
-  { rule_id: 18, rule_type: 'YARA',  rule_name: 'RULE_PHISH_TOSS_001',      attack_type: 'PHISHING',            trust_level: 'LOW',    status: 'PENDING',  created_at: '2026-03-19T18:30:00' },
-  { rule_id: 19, rule_type: 'SNORT', rule_name: 'RULE_DDOS_HTTP_009',       attack_type: 'DDOS',                trust_level: 'MEDIUM', status: 'ACTIVE',   created_at: '2026-03-19T15:00:00' },
-  { rule_id: 20, rule_type: 'YARA',  rule_name: 'RULE_RANSOM_MAZE_002',     attack_type: 'RANSOMWARE',          trust_level: 'MEDIUM', status: 'INACTIVE', created_at: '2026-03-19T12:40:00' },
-  { rule_id: 21, rule_type: 'SNORT', rule_name: 'RULE_WEB_PATH_TRAV_005',   attack_type: 'WEB_ATTACK',          trust_level: 'HIGH',   status: 'ACTIVE',   created_at: '2026-03-19T10:15:00' },
-  { rule_id: 22, rule_type: 'SNORT', rule_name: 'RULE_OTHER_BOTNET_001',    attack_type: 'PHISHING',            trust_level: 'LOW',    status: 'PENDING',  created_at: '2026-03-18T17:50:00' },
-  { rule_id: 23, rule_type: 'SNORT', rule_name: 'RULE_CRED_KAKAOBANK_001',  attack_type: 'CREDENTIAL_STUFFING', trust_level: 'MEDIUM', status: 'ACTIVE',   created_at: '2026-03-18T14:25:00' },
-  { rule_id: 24, rule_type: 'YARA',  rule_name: 'RULE_PHISH_SHINHAN_004',   attack_type: 'PHISHING',            trust_level: 'HIGH',   status: 'ACTIVE',   created_at: '2026-03-18T11:00:00' },
-  { rule_id: 25, rule_type: 'YARA',  rule_name: 'RULE_RANSOM_CONTI_007',    attack_type: 'RANSOMWARE',          trust_level: 'HIGH',   status: 'ACTIVE',   created_at: '2026-03-18T08:30:00' },
-];
-
-// ─── [백엔드 연동 시 삭제 끝] ─────────────────────────────────────────────────
 
 // ─── 유틸 ─────────────────────────────────────────────────────────────────────
 
@@ -204,111 +171,65 @@ export default function RulePage() {
   const [pageInput, setPageInput]           = useState('1');
   const [hoveredId, setHoveredId]           = useState(null); // 테이블 행 hover 상태
 
-  // ── [백엔드 연동 시 이 블록 전체 삭제] 목업 초기 로드 ────────────────────────
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setRules(MOCK_RULES);
-      setIsLoading(false);
-    }, 400);
-    return () => clearTimeout(timer);
-  }, []);
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  // ── [백엔드 연동 시 주석 해제] 실제 API 호출 함수 ────────────────────────────
-  //
   // AbortController를 통해 이전 요청을 취소하여 race condition 방지:
   //   필터 변경 → 필터 useEffect에서 새 controller 생성, cleanup에서 abort()
   //   페이지 변경 → handlePageChange에서 새 controller 생성, abort()
   //
-  // const fetchRules = useCallback(async (page = 1, signal) => {
-  //   try {
-  //     setIsLoading(true);
-  //     setError(null);
-  //     const params = { page };
-  //     if (search)         params.search      = search;
-  //     if (filterAttack)   params.attack_type = filterAttack;   // 예: 'RANSOMWARE'
-  //     if (filterRuleType) params.rule_type   = filterRuleType; // 예: 'SNORT'
-  //     if (filterTrust)    params.trust_level = filterTrust;    // 예: 'HIGH'
-  //     if (filterStatus)   params.status      = filterStatus;   // 예: 'ACTIVE'
-  //     if (dateFrom)       params.date_from   = dateFrom;
-  //     if (dateTo)         params.date_to     = dateTo;
-  //     const { data } = await api.get('/ctink/rules', { params, signal });
-  //     setRules(data.rules);
-  //     setTotalCount(data.total_count);
-  //     setTotalPages(data.total_pages);
-  //     setCurrentPage(data.current_page);
-  //   } catch (e) {
-  //     if (e.code === 'ERR_CANCELED') return; // AbortController 취소 요청은 에러 처리 생략
-  //     if (e.response?.status === 400) setError('날짜 범위가 올바르지 않습니다.');
-  //     else setError('데이터를 불러오지 못했습니다.');
-  //   } finally {
-  //     // abort된 요청의 finally는 후속 요청의 로딩 상태를 덮어쓰지 않도록 체크
-  //     if (!signal?.aborted) setIsLoading(false);
-  //   }
-  // }, [search, filterAttack, filterRuleType, filterTrust, filterStatus, dateFrom, dateTo]);
+  const fetchRules = useCallback(async (page = 1, signal) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const params = { page };
+      if (search)         params.search      = search;
+      if (filterAttack)   params.attack_type = filterAttack;   // 예: 'RANSOMWARE'
+      if (filterRuleType) params.rule_type   = filterRuleType; // 예: 'SNORT'
+      if (filterTrust)    params.trust_level = filterTrust;    // 예: 'HIGH'
+      if (filterStatus)   params.status      = filterStatus;   // 예: 'ACTIVE'
+      if (dateFrom)       params.date_from   = dateFrom;
+      if (dateTo)         params.date_to     = dateTo;
+      const { data } = await api.get('/ctink/rules', { params, signal });
+      setRules(data.rules);
+      setTotalCount(data.total_count);
+      setTotalPages(data.total_pages);
+      setCurrentPage(data.current_page);
+      setPageInput(String(data.current_page));
+    } catch (e) {
+      if (e.code === 'ERR_CANCELED') return; // AbortController 취소 요청은 에러 처리 생략
+      if (e.response?.status === 400) setError('날짜 범위가 올바르지 않습니다.');
+      else setError('데이터를 불러오지 못했습니다.');
+    } finally {
+      // abort된 요청의 finally는 후속 요청의 로딩 상태를 덮어쓰지 않도록 체크
+      if (!signal?.aborted) setIsLoading(false);
+    }
+  }, [search, filterAttack, filterRuleType, filterTrust, filterStatus, dateFrom, dateTo]);
   // currentPage를 의존성에서 제외 → page 파라미터로 직접 전달하여 이중 호출 방지
-  //
-  // // 초기 로드
-  // useEffect(() => {
-  //   const controller = new AbortController();
-  //   fetchRules(1, controller.signal);
-  //   return () => controller.abort();
-  // }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  //
-  // // 필터 변경 → page=1로 직접 호출 (currentPage 리셋 + API 1회 호출 + 이전 요청 취소)
-  // useEffect(() => {
-  //   setCurrentPage(1);
-  //   setPageInput('1');
-  //   const controller = new AbortController();
-  //   fetchRules(1, controller.signal);
-  //   return () => controller.abort();
-  // }, [search, filterAttack, filterRuleType, filterTrust, filterStatus, dateFrom, dateTo]);
-  // ↑ fetchRules를 dep에서 의도적으로 제외 (필터값을 useCallback deps로 직접 관리)
-  //
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  // ── [백엔드 연동 시 이 블록 전체 삭제] 클라이언트 사이드 필터링 (목업 전용) ──
-
-  const filtered = useMemo(() => rules.filter(r => {
-    const matchSearch   = !search         || r.rule_name.toLowerCase().includes(search.toLowerCase());
-    const matchAttack   = !filterAttack   || r.attack_type  === filterAttack;
-    const matchRuleType = !filterRuleType || r.rule_type    === filterRuleType;
-    const matchTrust    = !filterTrust    || r.trust_level  === filterTrust;
-    const matchStatus   = !filterStatus   || r.status       === filterStatus;
-    const rDate         = r.created_at ? new Date(r.created_at) : null;
-    const matchFrom     = !dateFrom || (rDate && rDate >= new Date(dateFrom));
-    const matchTo       = !dateTo   || (rDate && rDate <= new Date(dateTo + 'T23:59:59'));
-    return matchSearch && matchAttack && matchRuleType && matchTrust && matchStatus && matchFrom && matchTo;
-  }), [rules, search, filterAttack, filterRuleType, filterTrust, filterStatus, dateFrom, dateTo]);
-
-  // 필터 변경 시 totalCount/totalPages 동기화 및 1페이지로 리셋
+  
+  // 초기 로드
   useEffect(() => {
-    if (isLoading) return; // 초기 로드 완료 전에는 실행하지 않음
-    setTotalCount(filtered.length);
-    setTotalPages(Math.max(1, Math.ceil(filtered.length / PAGE_SIZE)));
+    const controller = new AbortController();
+    fetchRules(1, controller.signal);
+    return () => controller.abort();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  
+  // 필터 변경 → page=1로 직접 호출 (currentPage 리셋 + API 1회 호출 + 이전 요청 취소)
+  useEffect(() => {
     setCurrentPage(1);
     setPageInput('1');
-  }, [filtered]); // eslint-disable-line react-hooks/exhaustive-deps
-  // ↑ isLoading을 dep에서 제외: 목업 로드 완료 시 1회 실행 후 필터 변경에만 반응
-
-  // API 연동 후에는 서버가 페이지네이션을 처리하므로 rules를 직접 사용
-  // [백엔드 연동 시 삭제] paginated → rules로 교체
-  const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-
-  // ── [백엔드 연동 시 삭제 끝] ─────────────────────────────────────────────────
+    const controller = new AbortController();
+    fetchRules(1, controller.signal);
+    return () => controller.abort();
+  }, [search, filterAttack, filterRuleType, filterTrust, filterStatus, dateFrom, dateTo]);
+  // ↑ fetchRules를 dep에서 의도적으로 제외 (필터값을 useCallback deps로 직접 관리)
 
   // 페이지 변경 핸들러
   // pageControllerRef: 페이지 변경 요청의 AbortController를 추적
   // 연속 클릭 시 이전 요청을 abort()하여 race condition 방지
-  // [백엔드 연동 시] 아래 주석 해제 및 setCurrentPage/setPageInput 단독 호출 블록 삭제
-  // const pageControllerRef = useRef(null); // [백엔드 연동 시 useRef import 추가 후 주석 해제]
+  const pageControllerRef = useRef(null);
   const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-    setPageInput(String(newPage));
-    // if (pageControllerRef.current) pageControllerRef.current.abort();
-    // const controller = new AbortController();
-    // pageControllerRef.current = controller;
-    // fetchRules(newPage, controller.signal);
+    if (pageControllerRef.current) pageControllerRef.current.abort();
+    const controller = new AbortController();
+    pageControllerRef.current = controller;
+    fetchRules(newPage, controller.signal);
   };
 
   const handleCloseModal = useCallback(() => setSelectedRule(null), []);
@@ -472,16 +393,14 @@ export default function RulePage() {
                   ))}
                 </tr>
               ))
-            ) : paginated.length === 0 ? (
-              // [백엔드 연동 시] paginated → rules로 교체
+            ) : rules.length === 0 ? (
               <tr>
                 <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: 'var(--ctink-text-muted)', fontSize: '13px' }}>
                   조회된 정책이 없습니다.
                 </td>
               </tr>
             ) : (
-              // [백엔드 연동 시] paginated → rules로 교체 (서버가 페이지네이션 처리)
-              paginated.map((rule, i) => {
+              rules.map((rule, i) => {
                 const isHovered = hoveredId === rule.rule_id;
                 return (
                   <tr
@@ -490,7 +409,7 @@ export default function RulePage() {
                     onMouseEnter={() => setHoveredId(rule.rule_id)}
                     onMouseLeave={() => setHoveredId(null)}
                     style={{
-                      borderBottom:    i < paginated.length - 1 ? '1px solid var(--ctink-border)' : 'none',
+                      borderBottom:    i < rules.length - 1 ? '1px solid var(--ctink-border)' : 'none',
                       cursor:          'pointer',
                       transition:      'background-color 0.1s',
                       backgroundColor: isHovered ? 'var(--ctink-hover)' : 'transparent',

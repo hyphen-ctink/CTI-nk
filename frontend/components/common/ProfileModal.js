@@ -15,19 +15,6 @@ const STATUS_STYLE = {
   LOCKED:   { label: '잠금',   color: '#A32D2D', backgroundColor: 'rgba(163,45,45,0.10)' },
 };
 
-// ─── [TODO] 백엔드 연동 시 아래 목업 데이터 블록 전체 제거 ──────────────────
-const MOCK_PROFILE = {
-  login_id:      'hong01',
-  name:          '홍길동',
-  organization:  '하이픈 보안',
-  position:      '보안 담당자',
-  email:         'hong@ctink.com',
-  phone:         '010-1234-5678',
-  status:        'ACTIVE',
-  last_login_at: '2025-04-01T09:00:00',
-};
-// ─── [TODO] 백엔드 연동 시 위 목업 데이터 블록 전체 제거 ────────────────────
-
 // ─── 유틸 ─────────────────────────────────────────────────────────────────────
 
 function formatDate(iso) {
@@ -62,27 +49,17 @@ export default function ProfileModal({ onClose }) {
   const [error, setError]     = useState(null); // 에러 메시지 (null이면 에러 없음)
 
   useEffect(() => {
-    // ── [TODO] 백엔드 연동 시 아래 목업 블록 제거 후 실제 API 블록 주석 해제 ──
-  const timer = setTimeout(() => {
-    setProfile(MOCK_PROFILE);
-    setLoading(false);
-  }, 300);
-  return () => clearTimeout(timer);
-    // ── [TODO] 백엔드 연동 시 위 목업 블록 제거 후 아래 실제 API 블록 주석 해제 ─
-
-    // ── 실제 API 호출 (백엔드 연동 시 주석 해제) ─────────────────────────────
-    // api.get('/ctink/profile')
-    //   .then((r) => setProfile(r.data))
-    //   .catch((err) => {
-    //     if (err.response?.status === 401) {
-    //       // 세션 만료 또는 미인증 → 로그인 페이지로 리다이렉트
-    //       router.push('/login');
-    //     } else {
-    //       setError('프로필 정보를 불러오는 데 실패했습니다.');
-    //     }
-    //   })
-    //   .finally(() => setLoading(false));
-    // ── 실제 API 호출 끝 ──────────────────────────────────────────────────────
+    api.get('/ctink/profile')
+      .then((r) => setProfile(r.data))
+      .catch((err) => {
+        if (err.response?.status === 401) {
+          // 세션 만료 또는 미인증 → 로그인 페이지로 리다이렉트
+          router.replace('/login');
+        } else {
+          setError('프로필 정보를 불러오는 데 실패했습니다.');
+        }
+      })
+      .finally(() => setLoading(false));
   }, [router]);
 
   // ESC 키 닫기

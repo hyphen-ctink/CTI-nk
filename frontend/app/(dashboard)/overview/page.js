@@ -7,81 +7,33 @@ import api from '@/lib/api';
 
 // ── 공격 유형 레이블 ────────────────────────────
 const ATTACK_TYPE_LABELS = {
-  ransomware:          '랜섬웨어',
-  phishing:            '피싱 공격',
-  ddos:                'DDoS',
-  credential_stuffing: '크리덴셜 스터핑',
-  web_attack:          '웹페이지 취약점',
-  other:               '기타',
+  RANSOMWARE:          '랜섬웨어',
+  PHISHING:            '피싱 공격',
+  DDOS:                'DDoS',
+  CREDENTIAL_STUFFING: '크리덴셜 스터핑',
+  WEB_ATTACK:          '웹페이지 취약점',
+  OTHER:               '기타',
 };
 
 // ── 처리 상태별 레이블 및 색상 ──────────────────
 const PROCESS_STATUS = {
-  collected:  { label: '수집 완료', color: 'rgba(17, 45, 78, 0.5)',  bg: 'rgba(17, 45, 78, 0.06)'  },
-  processing: { label: '처리 중',   color: '#3F72AF',                bg: 'rgba(63, 114, 175, 0.1)' },
-  applying:   { label: '적용 중',   color: '#5068A9',                bg: 'rgba(80, 104, 169, 0.1)' },
-  done:       { label: '완료',      color: '#2d7a4f',                bg: 'rgba(45, 122, 79, 0.1)'  },
-  failed:     { label: '실패',      color: '#c0392b',                bg: 'rgba(192, 57, 43, 0.1)'  },
-  removed:    { label: '제거됨',    color: 'rgba(17, 45, 78, 0.35)', bg: 'rgba(17, 45, 78, 0.04)'  },
+  COLLECTED:  { label: '수집 완료', color: 'rgba(17, 45, 78, 0.5)',  bg: 'rgba(17, 45, 78, 0.06)'  },
+  PROCESSING: { label: '처리 중',   color: '#3F72AF',                bg: 'rgba(63, 114, 175, 0.1)' },
+  APPLYING:   { label: '적용 중',   color: '#5068A9',                bg: 'rgba(80, 104, 169, 0.1)' },
+  DONE:       { label: '완료',      color: '#2d7a4f',                bg: 'rgba(45, 122, 79, 0.1)'  },
+  FAILED:     { label: '실패',      color: '#c0392b',                bg: 'rgba(192, 57, 43, 0.1)'  },
+  REMOVED:    { label: '제거됨',    color: 'rgba(17, 45, 78, 0.35)', bg: 'rgba(17, 45, 78, 0.04)'  },
 };
 
 // ── 도넛 차트 공격 유형별 색상 ──────────────────
 const CHART_COLORS = {
-  ransomware:          '#b05c5c',
-  phishing:            '#c4845a',
-  ddos:                '#7c6faa',
-  credential_stuffing: '#112D4E',
-  web_attack:          '#3F72AF',
-  other:               '#c8d6ea',
+  RANSOMWARE:          '#b05c5c',
+  PHISHING:            '#c4845a',
+  DDOS:                '#7c6faa',
+  CREDENTIAL_STUFFING: '#112D4E',
+  WEB_ATTACK:          '#3F72AF',
+  OTHER:               '#c8d6ea',
 };
-
-// ─────────────────────────────────────────────────
-// [백엔드 연동 시 아래 MOCK_DATA 블록 전체 삭제]
-// ─────────────────────────────────────────────────
-const MOCK_DATA = {
-  threat_count: 437,
-  threat_count_diff: 15,
-  rule_count: 89,
-  rule_count_diff: -3,
-  pending_count: 12,
-  platform_status: [
-    { platform_id: 1,  name: 'GitHub_SecurityOnion', last_collected_at: '2025-04-01T09:00:00' },
-    { platform_id: 2,  name: 'GitHub_Velociraptor',  last_collected_at: '2025-04-01T08:30:00' },
-    { platform_id: 3,  name: 'GitHub_CiscoTalos',    last_collected_at: '2025-04-01T07:55:00' },
-    { platform_id: 4,  name: 'GitHub_Stamparm',      last_collected_at: '2025-03-31T22:10:00' },
-    { platform_id: 5,  name: 'GitHub_ESET',          last_collected_at: '2025-03-31T18:40:00' },
-    { platform_id: 6,  name: 'GitHub_Aquasecurity',  last_collected_at: '2025-03-31T15:20:00' },
-    { platform_id: 7,  name: 'Reddit_threatintel',   last_collected_at: '2025-04-01T06:30:00' },
-    { platform_id: 8,  name: 'Reddit_blueteamsec',   last_collected_at: '2025-03-31T23:50:00' },
-    { platform_id: 9,  name: 'Reddit_NetSec',        last_collected_at: null                  },
-    { platform_id: 10, name: 'Reddit_CyberSecurity', last_collected_at: '2025-03-31T12:00:00' },
-    { platform_id: 11, name: 'Medium_ANYRUN',        last_collected_at: null                  },
-    { platform_id: 12, name: 'OTX_AlienVault',       last_collected_at: '2025-04-01T09:15:00' },
-  ],
-  recent_threats: [
-    { cti_id: 1,  title: 'LockBit 3.0 변종',      attack_type: 'ransomware',          process_status: 'done',       collected_at: '2025-04-01T14:32:00' },
-    { cti_id: 2,  title: 'GS25 크리덴셜 스터핑',    attack_type: 'credential_stuffing', process_status: 'done',       collected_at: '2025-04-01T13:51:00' },
-    { cti_id: 3,  title: 'SKT 유사 피싱 캠페인',    attack_type: 'phishing',            process_status: 'failed',     collected_at: '2025-04-01T13:20:00' },
-    { cti_id: 4,  title: 'Apache Struts2 RCE',    attack_type: 'web_attack',          process_status: 'done',       collected_at: '2025-04-01T12:47:00' },
-    { cti_id: 5,  title: 'DNS Query Flooding',    attack_type: 'ddos',                process_status: 'applying',   collected_at: '2025-04-01T12:10:00' },
-    { cti_id: 6,  title: '채용 공고 스피어피싱',     attack_type: 'phishing',            process_status: 'processing', collected_at: '2025-04-01T11:38:00' },
-    { cti_id: 7,  title: 'Mirai 봇넷 변종',        attack_type: 'ddos',                process_status: 'collected',  collected_at: '2025-04-01T10:55:00' },
-    { cti_id: 8,  title: 'KB국민카드 피싱 사이트',   attack_type: 'phishing',            process_status: 'collected',  collected_at: '2025-04-01T10:21:00' },
-    { cti_id: 9,  title: 'LG U+ 고객 정보 유출',   attack_type: 'credential_stuffing', process_status: 'processing', collected_at: '2025-04-01T09:44:00' },
-    { cti_id: 10, title: 'WannaCry 변종 탐지',     attack_type: 'ransomware',          process_status: 'done',       collected_at: '2025-04-01T09:12:00' },
-  ],
-  attack_type_distribution: [
-    { attack_type: 'ransomware',          count: 122 },
-    { attack_type: 'phishing',            count: 96  },
-    { attack_type: 'ddos',                count: 79  },
-    { attack_type: 'credential_stuffing', count: 74  },
-    { attack_type: 'web_attack',          count: 66  },
-    { attack_type: 'other',               count: 0   },
-  ],
-};
-// ─────────────────────────────────────────────────
-// [백엔드 연동 시 삭제 끝]
-// ─────────────────────────────────────────────────
 
 // ── 유틸: ISO 문자열 → MM/DD HH:mm 형식 ─────────
 function formatTime(isoString) {
@@ -324,15 +276,8 @@ export default function OverviewPage() {
           isInitialLoad.current = false;
         }
 
-        // ─────────────────────────────────────────
-        // [백엔드 연동 시] 아래 두 줄 주석 해제
-        // const response = await api.get('/ctink/overview');
-        // setData(response.data);
-
-        // [백엔드 연동 시] 아래 두 줄 삭제
-        await new Promise((r) => setTimeout(r, 300));
-        setData(MOCK_DATA);
-        // ─────────────────────────────────────────
+        const response = await api.get('/ctink/overview');
+        setData(response.data);
 
         setError(null); // 이전 에러가 있었다면 갱신 성공 시 초기화
         hasData.current = true;
