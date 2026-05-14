@@ -54,7 +54,7 @@ export default function ProfileModal({ onClose }) {
       .catch((err) => {
         if (err.response?.status === 401) {
           // 세션 만료 또는 미인증 → 로그인 페이지로 리다이렉트
-          router.push('/login');
+          router.replace('/login');
         } else {
           setError('프로필 정보를 불러오는 데 실패했습니다.');
         }

@@ -525,6 +525,11 @@ function UsersSection() {
   const [isLoading,        setIsLoading]        = useState(true);
   const [fetchError,       setFetchError]       = useState(false);
   const [selectedUser,     setSelectedUser]     = useState(null); // 상세 패널 표시 대상
+  const [myUserId, setMyUserId] = useState(null);
+
+  useEffect(() => {
+    api.get('/ctink/profile').then(r => setMyUserId(r.data.user_id));
+  }, []);
 
   const fetchUsers = useCallback(async (page) => {
     setIsLoading(true);
@@ -716,14 +721,16 @@ function UsersSection() {
                             bg={isSelected ? 'rgba(63,114,175,0.12)' : 'rgba(15,110,86,0.08)'}
                             onClick={() => handleDetailClick(user)}
                           />
-                          <ActionButton
-                            label={toggleLabel}
-                            color={toggleColor}
-                            bg={toggleBg}
-                            loading={isProcessing}
-                            disabled={isProcessing}
-                            onClick={() => handleToggleStatus(user)}
-                          />
+                          {user.user_id !== myUserId && (
+                            <ActionButton
+                              label={toggleLabel}
+                              color={toggleColor}
+                              bg={toggleBg}
+                              loading={isProcessing}
+                              disabled={isProcessing}
+                              onClick={() => handleToggleStatus(user)}
+                            />
+                          )}
                         </div>
                       </td>
                     </tr>

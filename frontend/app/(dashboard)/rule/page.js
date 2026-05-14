@@ -192,6 +192,7 @@ export default function RulePage() {
       setTotalCount(data.total_count);
       setTotalPages(data.total_pages);
       setCurrentPage(data.current_page);
+      setPageInput(String(data.current_page));
     } catch (e) {
       if (e.code === 'ERR_CANCELED') return; // AbortController 취소 요청은 에러 처리 생략
       if (e.response?.status === 400) setError('날짜 범위가 올바르지 않습니다.');
