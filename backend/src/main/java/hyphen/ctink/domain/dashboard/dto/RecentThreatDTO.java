@@ -10,7 +10,7 @@ public record RecentThreatDTO(Long ctiId, String title, String attackType,
         return new RecentThreatDTO(
                 entity.getId(),
                 entity.getSummaryTitle(),
-                entity.getAttackType().name().toLowerCase(),
+                entity.getAttackType() != null ? entity.getAttackType().name() : "UNKNOWN",
                 entity.getProcessStatus().name().toLowerCase(),
                 entity.getCollectedAt()
         );

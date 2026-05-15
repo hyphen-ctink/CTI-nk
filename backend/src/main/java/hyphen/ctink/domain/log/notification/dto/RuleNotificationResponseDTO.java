@@ -4,7 +4,7 @@ import java.util.List;
 
 public record RuleNotificationResponseDTO(
         Long totalCount,
-        Long pages,
+        Long totalPages,
         Long currentPage,
         List<RuleNotificationLogDTO> rules
 ) {}

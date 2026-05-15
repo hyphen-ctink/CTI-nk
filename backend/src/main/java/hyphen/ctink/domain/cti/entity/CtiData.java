@@ -49,4 +49,8 @@ public class CtiData {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    public void updateSummaryTitle(String title) {
+        this.summaryTitle = title;
+    }
 }

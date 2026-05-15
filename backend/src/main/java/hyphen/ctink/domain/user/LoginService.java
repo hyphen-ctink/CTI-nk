@@ -70,7 +70,7 @@ public class LoginService {
                         "5회 실패 시 계정이 잠깁니다. 기억이 나지 않으신다면 관리자에게 미리 문의해 주세요.",
                         null,
                         null,
-                        user.getLoginAttempts()
+                        null
                 );
             }
 
@@ -78,18 +78,19 @@ public class LoginService {
                     "아이디 또는 비밀번호가 일치하지 않습니다.",
                     null,
                     null,
-                    user.getLoginAttempts()
+                    null
             );
         }
 
         user.saveLastLoginAt();
         session.setAttribute("LOGIN_USER", user.getId());
+        session.setAttribute("LOGIN_ROLE", user.getRole());
 
         return new LoginResponseDTO(
                 null,
                 user.getRole(),
                 user.getName(),
-                null
+                user.getLoginAttempts()
         );
     }
 }

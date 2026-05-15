@@ -45,5 +45,6 @@ public class CollectorResultService {
         ctiDataRepository.save(entity);
 
         platform.updateLastCollectedAt(LocalDateTime.now());
+        entity.updateSummaryTitle("recent_threat_"+entity.getId());
     }
 }

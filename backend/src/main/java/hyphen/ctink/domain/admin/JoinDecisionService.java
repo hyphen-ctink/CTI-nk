@@ -16,8 +16,8 @@ public class JoinDecisionService {
     private  final UserRepository userRepository;
 
     @Transactional
-    public Decision decideJoin(Long userId, DecisionRequestDTO req) {
-        User user = userRepository.findById(userId)
+    public Decision decideJoin(String loginId, DecisionRequestDTO req) {
+        User user = userRepository.findByLoginId(loginId)
                 .orElseThrow();
 
         if (user.getUserStatus() != UserStatus.PENDING) {

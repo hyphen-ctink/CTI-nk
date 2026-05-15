@@ -30,7 +30,7 @@ public class UsersController {
 
     @PatchMapping("/{userId}/decision")
     public DecisionResponseDTO decideUser(
-            @PathVariable Long userId,
+            @PathVariable String userId,
             @RequestBody DecisionRequestDTO req
             ) {
         Decision decision = joinDecisionService.decideJoin(userId, req);
@@ -39,7 +39,7 @@ public class UsersController {
 
     @PatchMapping("/{userId}")
     public String updateUser(
-            @PathVariable Long userId,
+            @PathVariable String userId,
             @RequestBody UserUpdateRequestDTO req
     ) {
         return userUpdateService.userUpdate(req, userId);
