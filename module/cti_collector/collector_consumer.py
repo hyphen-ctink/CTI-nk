@@ -1,0 +1,42 @@
+import pika
+import json
+from datetime import datetime, timedelta
+from collector.collector import collector_start
+from collector_producer import send_result
+
+def callback(ch, method, properties, body):
+    data = json.loads(body)
+
+    job_id = data.get("job_id")
+    platform_id = data.get("platform_id")
+    last_commit_sha = data.get("last_commit_sha")
+    last_collected_at = data.get("last_collected_at")
+
+    payload = {
+        "platform_id": platform_id,
+        "last_commit_sha": last_commit_sha,
+        "last_collected_at": last_collected_at
+    } 
+    
+    try:
+        result = collector_start(payload)
+        send_result(result)
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+
+    except Exception as e:
+        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+
+connection = pika.BlockingConnection(
+    pika.ConnectionParameters(host="localhost")
+)
+channel = connection.channel()
+
+channel.queue_declare(queue='collector.queue', durable=True)
+channel.basic_qos(prefetch_count=1)
+
+channel.basic_consume(
+    queue='collector.queue',
+    on_message_callback=callback
+)
+
+channel.start_consuming()
