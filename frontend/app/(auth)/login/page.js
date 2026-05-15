@@ -13,13 +13,11 @@ import api from '@/lib/api';
 
 // 서버 메시지 박스 색상 정의
 // error   : 일반 인증 실패 (빨간 계열)
-// warning : 3회 이상 실패 경고 (주황/노란 계열)
 // locked  : 5회 실패 계정 잠금 (빨간 계열)
 // pending : 관리자 승인 대기 (파란 계열)
 // inactive: 계정 비활성화 (빨간 계열)
 const MESSAGE_COLORS = {
   error:    { bg: 'rgba(163, 45, 45, 0.08)',  border: 'rgba(163, 45, 45, 0.25)',  text: '#A32D2D' },
-  warning:  { bg: 'rgba(186, 117, 23, 0.08)', border: 'rgba(186, 117, 23, 0.25)', text: '#BA7517' },
   locked:   { bg: 'rgba(163, 45, 45, 0.08)',  border: 'rgba(163, 45, 45, 0.25)',  text: '#A32D2D' },
   pending:  { bg: 'rgba(63, 114, 175, 0.08)', border: 'rgba(63, 114, 175, 0.25)', text: 'var(--ctink-accent)' },
   inactive: { bg: 'rgba(163, 45, 45, 0.08)',  border: 'rgba(163, 45, 45, 0.25)',  text: '#A32D2D' },
@@ -61,12 +59,6 @@ const labelStyle = {
   marginBottom: '6px',
 };
 
-const errorStyle = {
-  fontSize: '11px',
-  color: '#A32D2D',
-  marginTop: '4px',
-};
-
 const eyeButtonStyle = {
   position: 'absolute',
   right: '12px',
@@ -90,7 +82,6 @@ export default function LoginPage() {
   // messageType: 'error' | 'warning' | 'locked' | 'pending' | 'inactive'
   const [messageType, setMessageType] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [showAttemptsWarning, setShowAttemptsWarning] = useState(false);
 
   const {
     register,
@@ -112,7 +103,6 @@ export default function LoginPage() {
     setIsLoading(true);
     setServerMessage('');
     setMessageType('');
-    setShowAttemptsWarning(false);
 
     const payload = {
       login_id: data.login_id,
@@ -129,61 +119,24 @@ export default function LoginPage() {
         // role이 null인 경우 비정상 응답으로 판단하여 에러 처리
         // 백엔드에서 role이 null로 내려오는 경우가 없어야 정상 → 발생 시 팀 확인 필요
         setMessageType('error');
-        setServerMessage('로그인 처리 중 오류가 발생했습니다. 관리자에게 문의해주세요.');
+        setServerMessage(res.data.message || '로그인 처리 중 오류가 발생했습니다. 관리자에게 문의해주세요.');
         return;
       }
       sessionStorage.setItem('role', res.data.role);
       if (res.data.name) sessionStorage.setItem('name', res.data.name);
       router.replace('/overview');
-    
     } catch (error) {
-      const status = error.response?.status;
-      const body   = error.response?.data;
-    
-      if (status === 400) {
-        // 아이디 또는 비밀번호 누락 (클라이언트 유효성 검사로 대부분 방어되지만 방어적으로 처리)
-        setMessageType('error');
-        setServerMessage(body?.message || '아이디와 비밀번호를 모두 입력해주세요.');
-    
-      } else if (status === 401) {
-        const attempts = body?.login_attempts ?? 0;
-        if (attempts >= 3) {
-          // 3회 이상 실패: 경고 팝업 표시 + 서버 메시지 함께 전달
-          setShowAttemptsWarning(true);
-          setMessageType('warning');
-          setServerMessage(body?.message || '아이디 또는 비밀번호가 일치하지 않습니다.');
-        } else {
-          setMessageType('error');
-          setServerMessage(body?.message || '아이디 또는 비밀번호가 일치하지 않습니다.');
-        }
-    
-      } else if (status === 403) {
-        const msg = body?.message ?? '';
-        // 주의: inactive/pending 구분을 서버 메시지 문자열로 판단함
-        // 서버 측 메시지가 변경될 경우 아래 includes 조건도 함께 수정 필요
-        if (msg.includes('비활성화')) {
-          // 403 inactive: 계정 비활성화 상태 → 에러 계열 색상
-          setMessageType('inactive');
-        } else {
-          // 403 pending: 관리자 승인 대기 상태 → 안내 계열 색상
-          setMessageType('pending');
-        }
-        setServerMessage(msg || '계정을 확인해주세요.');
-    
-      } else if (status === 423) {
-        // 로그인 5회 실패로 계정 잠금, 관리자만 해제 가능
-        setMessageType('locked');
-        setServerMessage(body?.message || '로그인 5회 실패로 계정이 잠금되었습니다.');
-    
-      } else {
-        // 네트워크 오류 및 그 외 서버 오류
-        setMessageType('error');
-        setServerMessage('오류가 발생했습니다. 다시 시도해주세요.');
-      }
-    
+      const body = error.response?.data;
+      setMessageType('error');
+      setServerMessage(body?.message || '오류가 발생했습니다. 다시 시도해주세요.');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const onInvalid = () => {
+    setMessageType('error');
+    setServerMessage('아이디 또는 비밀번호가 일치하지 않습니다.');
   };
 
   const mc = MESSAGE_COLORS[messageType] ?? MESSAGE_COLORS.error;
@@ -256,28 +209,7 @@ export default function LoginPage() {
             로그인
           </p>
 
-          {/* 3회 이상 실패 경고 팝업 */}
-          {showAttemptsWarning && (
-            <div
-              style={{
-                padding: '12px 14px',
-                backgroundColor: 'rgba(186, 117, 23, 0.08)',
-                border: '1px solid rgba(186, 117, 23, 0.25)',
-                borderRadius: '8px',
-                fontSize: '13px',
-                color: '#BA7517',
-                marginBottom: '16px',
-              }}
-            >
-              <p style={{ fontWeight: 700, marginBottom: '2px' }}>로그인 3회 이상 실패</p>
-              {/* 서버에서 받은 경고 메시지 표시 (없으면 기본 문구 사용) */}
-              <p style={{ fontSize: '12px' }}>
-                {serverMessage || '5회 실패 시 계정이 잠깁니다. 기억이 나지 않으신다면 관리자에게 미리 문의해 주세요.'}
-              </p>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate>
 
             {/* 아이디 */}
             <div style={{ marginBottom: '16px' }}>
@@ -293,7 +225,6 @@ export default function LoginPage() {
                   required: '아이디를 입력해주세요.',
                 })}
               />
-              {errors.login_id && <p style={errorStyle}>{errors.login_id.message}</p>}
             </div>
 
             {/* 비밀번호 */}
@@ -319,11 +250,10 @@ export default function LoginPage() {
                   {showPassword ? EyeOff : EyeOpen}
                 </button>
               </div>
-              {errors.password && <p style={errorStyle}>{errors.password.message}</p>}
             </div>
 
             {/* 서버 메시지 박스 (경고 팝업이 표시 중일 때는 렌더링하지 않음) */}
-            {serverMessage && !showAttemptsWarning && (
+            {serverMessage && (
               <div
                 style={{
                   padding: '10px 14px',
