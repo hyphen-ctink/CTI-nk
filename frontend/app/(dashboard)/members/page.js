@@ -19,11 +19,6 @@ function formatDate(iso) {
   return `${ymd} ${hm}`;
 }
 
-// user_id → 'USR_XXX' 포맷 (화면 표시용)
-function formatUserId(id) {
-  return `USR_${String(id).padStart(3, '0')}`;
-}
-
 // ─── 공통 스타일 상수 ─────────────────────────────────────────────────────────
 
 const TH_STYLE = {
@@ -249,7 +244,7 @@ function UserDetailPanel({ user, onRoleToggle, processingRoleId }) {
   const isRoleProcessing = processingRoleId === user.user_id;
 
   const items = [
-    { label: 'ID',         value: formatUserId(user.user_id) },
+    { label: 'ID',         value: user.user_id },
     { label: '이름',        value: user.name },
     { label: '소속',        value: user.organization },
     { label: '직책',        value: user.position },
@@ -456,7 +451,7 @@ function PendingSection() {
                   return (
                     <tr key={user.user_id}>
                       <td style={TD_STYLE}>{formatDate(user.created_at)}</td>
-                      <td style={{ ...TD_STYLE, color: 'var(--ctink-text-muted)' }}>{formatUserId(user.user_id)}</td>
+                      <td style={{ ...TD_STYLE, color: 'var(--ctink-text-muted)' }}>{user.user_id}</td>
                       <td style={TD_STYLE}>{user.name}</td>
                       <td style={TD_STYLE}>{user.organization}</td>
                       <td style={TD_STYLE}>{user.position}</td>
@@ -696,7 +691,7 @@ function UsersSection() {
                       }}
                     >
                       <td style={{ ...TD_STYLE, color: 'var(--ctink-text-muted)', borderBottom: bdrBottom }}>
-                        {formatUserId(user.user_id)}
+                        {user.user_id}
                       </td>
                       <td style={{ ...TD_STYLE, borderBottom: bdrBottom }}>{user.name}</td>
                       <td style={{ ...TD_STYLE, borderBottom: bdrBottom }}>{user.organization}</td>
