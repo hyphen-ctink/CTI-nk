@@ -1,16 +1,14 @@
 # detection_rule_deployer.py
 #
-# Purpose:
-#   This module only inserts/removes Snort/YARA rules into shared rule files.
-#   It does not run Snort, YARA, syntax checks, scanner setup, reload, restart, or systemctl.
-#
 # Install:
+#   sudo apt update
+#   sudo apt install -y snort yara
 #   pip install pika
 #
 # Run:
 #   sudo python3 detection_rule_deployer.py apply --input apply.json
 #   sudo python3 detection_rule_deployer.py remove --input remove.json
-#   python3 detection_rule_deployer.py consume
+#   sudo python3 detection_rule_deployer.py consume
 #
 # Env (Defaults):
 #   SNORT_DEFAULT_RULE_FILE=/shared/rules/snort/local.rules
