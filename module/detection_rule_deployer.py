@@ -1,8 +1,6 @@
 # detection_rule_deployer.py
 #
 # Install:
-#   sudo apt update
-#   sudo apt install -y snort yara
 #   pip install pika
 #
 # Run:
