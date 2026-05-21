@@ -1,7 +1,9 @@
 package hyphen.ctink.domain.rule;
 
+import hyphen.ctink.domain.cti.enums.AttackType;
 import hyphen.ctink.domain.rule.entity.DetectionRule;
 import hyphen.ctink.domain.rule.enums.RuleStatus;
+import hyphen.ctink.domain.rule.enums.RuleType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,6 +17,10 @@ public interface DetectionRuleRepository extends JpaRepository<DetectionRule, Lo
     long countByRuleStatus(RuleStatus status);
 
     long count();
+
+    long countByRuleType(RuleType ruleType);
+
+    long countByAttackType(AttackType attackType);
 
     List<DetectionRule> findByIdIn(List<Long> ids);
 

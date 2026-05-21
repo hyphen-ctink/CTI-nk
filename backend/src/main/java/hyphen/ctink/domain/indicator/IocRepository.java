@@ -10,5 +10,7 @@ public interface IocRepository extends JpaRepository<Ioc, Long> {
 
     Optional<Ioc> findByIocValue(String iocValue);
 
+    Boolean existsByIocValue(String iocValue);
+
     List<Ioc> findByMispConfirmedFalseOrVirustotalConfirmedFalse();
 }

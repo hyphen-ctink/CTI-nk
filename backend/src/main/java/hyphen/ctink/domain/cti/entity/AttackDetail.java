@@ -4,13 +4,15 @@ import java.time.LocalDateTime;
 
 import hyphen.ctink.domain.cti.enums.AttackType;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@Builder
 @Entity
 @Table(name = "attack_detail")
+@NoArgsConstructor
+@AllArgsConstructor
 public class AttackDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

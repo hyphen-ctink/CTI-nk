@@ -17,6 +17,8 @@ public class RabbitMQConfig {
     public static final String COLLECT_RESULT_QUEUE = "collector.result.queue";
     public static final String TRUST_QUEUE = "trust.queue";
     public static final String TRUST_RESULT_QUEUE = "trust.result.queue";
+    public static final String AGENT_QUEUE = "analysis.request.queue";
+    public static final String AGENT_RESULT_QUEUE = "analysis.result.queue";
 
     @Bean
     public Queue collectQueue() {
@@ -43,6 +45,20 @@ public class RabbitMQConfig {
     public Queue trustResultQueue() {
         return QueueBuilder
                 .durable(TRUST_RESULT_QUEUE)
+                .build();
+    }
+
+    @Bean
+    public Queue agentQueue() {
+        return QueueBuilder
+                .durable(AGENT_QUEUE)
+                .build();
+    }
+
+    @Bean
+    public Queue agentResultQueue() {
+        return QueueBuilder
+                .durable(AGENT_RESULT_QUEUE)
                 .build();
     }
 
