@@ -16,6 +16,7 @@ public class CollectionPlatform {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     private CtiPlatform name;
 
     @Column(name = "collect_method", nullable = false)

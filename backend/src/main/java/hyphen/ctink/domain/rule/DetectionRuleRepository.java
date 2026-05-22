@@ -26,4 +26,6 @@ public interface DetectionRuleRepository extends JpaRepository<DetectionRule, Lo
 
     @Query("SELECT r.ruleStatus FROM DetectionRule r WHERE r.id = :ruleId")
     RuleStatus findRuleStatusById(@Param("ruleId") Long ruleId);
+
+    List<DetectionRule> findByRuleType(RuleType ruleType);
 }
