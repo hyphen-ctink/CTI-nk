@@ -3,6 +3,7 @@ package hyphen.ctink.domain.agent;
 
 import hyphen.ctink.domain.agent.dto.AgentJobResultDTO;
 import hyphen.ctink.domain.cti.CtiDataRepository;
+import hyphen.ctink.domain.log.notification.OtherThreatLogService;
 import hyphen.ctink.domain.cti.entity.AttackDetail;
 import hyphen.ctink.domain.cti.entity.CtiData;
 import hyphen.ctink.domain.cti.entity.OtherThreat;
@@ -14,6 +15,7 @@ import hyphen.ctink.domain.indicator.IocRepository;
 import hyphen.ctink.domain.indicator.UpdateTrustLevelService;
 import hyphen.ctink.domain.indicator.enums.IoCStatus;
 import hyphen.ctink.domain.indicator.enums.TrustLevel;
+import hyphen.ctink.domain.log.notification.PendingRuleLogService;
 import hyphen.ctink.domain.rule.DetectionRuleRepository;
 import hyphen.ctink.domain.rule.entity.DetectionRule;
 import hyphen.ctink.domain.rule.enums.RuleStatus;
@@ -33,6 +35,8 @@ public class AgentResultService {
     private final IocRepository iocRepository;
 
     private final UpdateTrustLevelService updateTrustLevelService;
+    private final OtherThreatLogService otherThreatLogService;
+    private final PendingRuleLogService pendingRuleLogService;
 
     @Transactional
     public void process(AgentJobResultDTO result) {
@@ -53,6 +57,8 @@ public class AgentResultService {
                     .suspectedType(String.valueOf(result.attackType()))
                     .analyzedAt(LocalDateTime.now())
                     .build();
+
+            otherThreatLogService.otherThreatLog();
 
             return;
         }
@@ -114,6 +120,7 @@ public class AgentResultService {
                 .build();
 
         detectionRuleRepository.save(rule);
+        pendingRuleLogService.pendingRuleLog(rule);
 
         // Attack detail이 null이 아닌 경우, 저장
         if (result.attackDetail() != null) {
