@@ -12,7 +12,7 @@ const ATTACK_TYPE_LABEL = {
   PHISHING:            '피싱 공격',
   WEB_ATTACK:          '웹페이지 취약점',
   DDOS:                'DDoS',
-  OTHER:              '기타',
+  OTHER:               '기타',
 };
 
 const IDS_RESULT_LABEL = {
@@ -31,7 +31,7 @@ const IDS_RESULT_STYLE = {
 const PAGE_SIZE = 15; // API 명세서 기준 페이지당 항목 수 고정값
 
 // ── 폴링 주기 ─────────────────────────────────────────────────────────────────
-const POLLING_INTERVAL = 30_000; // 30초 (Overview 페이지와 동일)
+const POLLING_INTERVAL = 30_000; // 30초
 
 // ─── 유틸 ─────────────────────────────────────────────────────────────────────
 
@@ -160,7 +160,7 @@ const TH_STYLE = {
 export default function IdsLogPage() {
   const [idsLogs,       setIdsLogs]       = useState([]);
   const [isLoading,     setIsLoading]     = useState(true);
-  const [error,         setError]         = useState(null); // 에러 메시지 (null이면 미표시)
+  const [error,         setError]         = useState(null);
   const [idsAttackType, setIdsAttackType] = useState('');
   const [idsResult,     setIdsResult]     = useState('');
   const [idsDateFrom,   setIdsDateFrom]   = useState('');
@@ -172,14 +172,18 @@ export default function IdsLogPage() {
   const [blockedCount,  setBlockedCount]  = useState(0);
   const [detectedCount, setDetectedCount] = useState(0);
   const [totalPages,    setTotalPages]    = useState(1);
-  const [selectedRule,  setSelectedRule]  = useState(null); // { rule_id, rule_name }
-  const [hoveredLogId,  setHoveredLogId]  = useState(null); // 마우스 오버된 행의 log_id
+  const [selectedRule,  setSelectedRule]  = useState(null);
+  const [hoveredLogId,  setHoveredLogId]  = useState(null);
 
-  // 최초 로드 여부: true일 때만 shimmer 표시, 폴링 갱신 시에는 백그라운드 교체
+  // ── PDF 생성 상태 ─────────────────────────────────────────────────────────
+  const [isPdfGenerating, setIsPdfGenerating] = useState(false);
+
+  // 최초 로드 여부
   const isInitialLoad = useRef(true);
 
+  // ── IDS 로그 폴링 ────────────────────────────────────────────────────────────
   useEffect(() => {
-    let cancelled = false; // Race Condition 방지: cleanup 시 true로 전환
+    let cancelled = false;
     const fetchLogs = async () => {
       try {
         if (isInitialLoad.current) {
@@ -191,13 +195,13 @@ export default function IdsLogPage() {
         const r = await api.get('/ctink/logs/ids', {
           params: {
             page:        currentPage,
-            attack_type: idsAttackType || undefined, // 빈 문자열이면 파라미터 제외
+            attack_type: idsAttackType || undefined,
             result:      idsResult     || undefined,
             date_from:   idsDateFrom   || undefined,
             date_to:     idsDateTo     || undefined,
           },
         });
-        if (cancelled) return; // Race Condition 방지: cleanup 이후 완료된 요청은 상태 업데이트 안 함
+        if (cancelled) return;
         setIdsLogs(r.data.logs);
         setTotalCount(r.data.total_count);
         setAlertCount(r.data.alert_count);
@@ -207,45 +211,59 @@ export default function IdsLogPage() {
         setCurrentPage(r.data.current_page);
         setPageInput(String(r.data.current_page));
       } catch (err) {
-        if (cancelled) return; // Race Condition 방지
-        // 401(세션 만료)은 api.js 인터셉터에서 전역 처리 (window.location.href = '/login')
+        if (cancelled) return;
         if (err.response?.status !== 401) {
-            setError('로그를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+          setError('로그를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
         }
       } finally {
-        if (!cancelled) setIsLoading(false); // Race Condition 방지
+        if (!cancelled) setIsLoading(false);
       }
     };
 
     fetchLogs();
     const intervalId = setInterval(fetchLogs, POLLING_INTERVAL);
     return () => {
-      cancelled = true;          // Race Condition 방지: 진행 중인 요청 무효화
-      clearInterval(intervalId); // 언마운트 또는 필터 변경 시 인터벌 정리
+      cancelled = true;
+      clearInterval(intervalId);
     };
   }, [currentPage, idsAttackType, idsResult, idsDateFrom, idsDateTo]);
 
-  // 필터 변경 시 1페이지로 초기화 + shimmer 표시
+  // ── 필터 변경 시 1페이지로 초기화 ─────────────────────────────────────────
   const withReset = (setter) => (val) => {
     setter(val);
     setCurrentPage(1);
     setPageInput('1');
-    setIsLoading(true);      // 필터 변경 시 즉시 shimmer 표시
-    isInitialLoad.current = true; // 다음 fetchLogs 호출에서 shimmer 유지
+    setIsLoading(true);
+    isInitialLoad.current = true;
   };
 
   const handlePageChange = (n) => {
     if (n === currentPage) return;
     setCurrentPage(n);
     setPageInput(String(n));
-    setIsLoading(true);           // 페이지 변경 시 shimmer 표시 (필터 변경과 동일하게 처리)
+    setIsLoading(true);
     isInitialLoad.current = true;
   };
 
   const handleCloseModal = useCallback(() => setSelectedRule(null), []);
 
-  // 초기 로드 실패: 데이터가 없는 상태에서 에러 → Overview 스타일로 전체 페이지 에러 표시
-  // 폴링 갱신 실패: 기존 데이터 유지 + 에러 배너만 표시 (필터 조작 가능하도록)
+  // ── 리포트 다운로드 핸들러 ────────────────────────────────────────────────────
+  // API 호출 → generateIdsReport(data) → PDF 즉시 다운로드.
+  const handleDownloadReport = async () => {
+    if (isPdfGenerating) return;
+    setIsPdfGenerating(true);
+    try {
+      const r = await api.get('/ctink/logs/ids/report');
+      const { generateIdsReport } = await import('@/lib/generateIdsReport');
+      await generateIdsReport(r.data);
+    } catch (err) {
+      console.error('[CTI-nk] PDF 생성 오류:', err);
+    } finally {
+      setIsPdfGenerating(false);
+    }
+  };
+
+  // 초기 로드 실패
   if (error && idsLogs.length === 0) {
     return (
       <div style={{ padding: '32px' }}>
@@ -262,10 +280,46 @@ export default function IdsLogPage() {
   return (
     <div style={{ padding: '32px' }}>
 
-      {/* 페이지 제목 */}
-      <h1 style={{ fontSize: '27px', fontWeight: 800, color: 'var(--ctink-text)', marginBottom: '24px' }}>
-        IDS Detection Log
-      </h1>
+      {/* 페이지 제목 + 리포트 다운로드 버튼 */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <h1 style={{ fontSize: '27px', fontWeight: 800, color: 'var(--ctink-text)' }}>
+          IDS Detection Log
+        </h1>
+        <button
+          onClick={handleDownloadReport}
+          disabled={isPdfGenerating}
+          style={{
+            display:         'flex',
+            alignItems:      'center',
+            gap:             '6px',
+            padding:         '8px 16px',
+            borderRadius:    '8px',
+            border:          '1px solid var(--ctink-accent)',
+            backgroundColor: isPdfGenerating ? 'var(--ctink-card)' : 'var(--ctink-accent)',
+            color:           isPdfGenerating ? 'var(--ctink-text-muted)' : '#FFFFFF',
+            fontSize:        '13px',
+            fontWeight:      700,
+            cursor:          isPdfGenerating ? 'default' : 'pointer',
+            transition:      'opacity 0.15s',
+            opacity:         isPdfGenerating ? 0.7 : 1,
+            fontFamily:      'inherit',
+            whiteSpace:      'nowrap',
+          }}
+        >
+          {isPdfGenerating ? (
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
+              style={{ animation: 'spin 1s linear infinite' }}>
+              <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="8 4" />
+            </svg>
+          ) : (
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M7 1v8M4 6l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M2 11h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          )}
+          {isPdfGenerating ? '리포트 생성 중...' : '리포트 다운로드'}
+        </button>
+      </div>
 
       {/* 통계 + 필터 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
@@ -288,7 +342,6 @@ export default function IdsLogPage() {
             onChange={withReset(setIdsResult)}
             options={Object.entries(IDS_RESULT_LABEL).map(([v, l]) => ({ value: v, label: l }))}
           />
-          {/* min/max로 역방향 날짜 입력 방지 → 서버 400 예방 */}
           <DateInput value={idsDateFrom} onChange={withReset(setIdsDateFrom)} max={idsDateTo || undefined} />
           <span style={{ fontSize: '13px', color: 'var(--ctink-text-light)' }}>~</span>
           <DateInput value={idsDateTo}   onChange={withReset(setIdsDateTo)}   min={idsDateFrom || undefined} />
@@ -328,7 +381,6 @@ export default function IdsLogPage() {
             </thead>
             <tbody style={{ borderBottom: '1px solid var(--ctink-border)' }}>
               {isLoading ? (
-                // 로딩 중: shimmer 스켈레톤 (globals.css @keyframes shimmer 사용)
                 Array.from({ length: 8 }).map((_, i) => (
                   <tr key={i} style={{ borderBottom: '1px solid var(--ctink-border)' }}>
                     {Array.from({ length: 4 }).map((_, j) => (
@@ -352,7 +404,6 @@ export default function IdsLogPage() {
                   </td>
                 </tr>
               ) : idsLogs.map((log) => (
-                // 행 클릭 시 RuleDetailModal에 rule_id/rule_name 전달 → 모달 내부에서 API 호출
                 <tr
                   key={log.log_id}
                   onClick={() => setSelectedRule({ rule_id: log.rule_id, rule_name: log.rule_name })}
@@ -371,7 +422,6 @@ export default function IdsLogPage() {
                   <td style={{ padding: '12px 20px', color: 'var(--ctink-text-muted)', fontSize: '13px' }}>
                     {ATTACK_TYPE_LABEL[log.attack_type] ?? log.attack_type ?? '-'}
                   </td>
-                  {/* textDecorationLine + textDecorationThickness: longhand끼리 사용하여 React 충돌 경고 방지 */}
                   <td style={{
                     padding:                 '12px 20px',
                     color:                   'var(--ctink-accent)',
@@ -446,7 +496,7 @@ export default function IdsLogPage() {
         )}
       </div>
 
-      {/* 룰 상세 모달: RuleDetailModal 내부에서 rule_id로 API 호출 */}
+      {/* 룰 상세 모달 */}
       {selectedRule && (
         <RuleDetailModal
           ruleId={selectedRule.rule_id}
@@ -454,6 +504,9 @@ export default function IdsLogPage() {
           onClose={handleCloseModal}
         />
       )}
+
+      {/* 스피너 keyframe */}
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
 
     </div>
   );
