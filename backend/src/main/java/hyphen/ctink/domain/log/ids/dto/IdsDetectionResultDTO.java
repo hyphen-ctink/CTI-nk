@@ -5,9 +5,9 @@ import hyphen.ctink.domain.log.ids.enums.Result;
 
 import java.time.LocalDateTime;
 
-public record IdsDetectionLogDTO(
-    Long logId,
-    AttackType attackType,
+public record IdsDetectionResultDTO(
+    String ruleContent,
+    String detail,
     Result result,
     LocalDateTime detectedAt
 ) {}

@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface DetectionRuleRepository extends JpaRepository<DetectionRule, Long> {
     long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
@@ -28,4 +29,6 @@ public interface DetectionRuleRepository extends JpaRepository<DetectionRule, Lo
     RuleStatus findRuleStatusById(@Param("ruleId") Long ruleId);
 
     List<DetectionRule> findByRuleType(RuleType ruleType);
+
+    Optional<DetectionRule> findByRuleContent(String s);
 }

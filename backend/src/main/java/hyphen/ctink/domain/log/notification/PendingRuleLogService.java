@@ -12,14 +12,18 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PendingRuleLogService {
 
+    private final NotificationLogRepository notificationLogRepository;
+
     public void pendingRuleLog(DetectionRule rule) {
         if (rule.getTrustLevel() == TrustLevel.LOW && rule.getRuleStatus() == RuleStatus.PENDING) {
-            NotificationLog.builder()
+            NotificationLog log = NotificationLog.builder()
                     .notificationType(NotificationType.ADMIN_POLICY_REQUEST)
                     .ruleType(rule.getRuleType())
                     .detectionRule(rule)
                     .isSent(false)
                     .build();
+
+            notificationLogRepository.save(log);
         }
     }
 }

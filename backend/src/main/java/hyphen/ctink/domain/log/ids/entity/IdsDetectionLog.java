@@ -4,23 +4,21 @@ import hyphen.ctink.domain.cti.enums.AttackType;
 import hyphen.ctink.domain.log.ids.enums.Result;
 import hyphen.ctink.domain.rule.entity.DetectionRule;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
 @Entity
 @Table(name = "ids_detection_log")
+@NoArgsConstructor
+@AllArgsConstructor
 public class IdsDetectionLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "rule_id", nullable = false)
-    private DetectionRule detectionRule;
 
     @Column(name = "attack_type")
     @Enumerated(EnumType.STRING)

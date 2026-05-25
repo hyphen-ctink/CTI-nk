@@ -2,7 +2,9 @@ package hyphen.ctink.domain.agent;
 
 
 import hyphen.ctink.domain.agent.dto.AgentJobResultDTO;
+import hyphen.ctink.domain.cti.AttackDetailRepository;
 import hyphen.ctink.domain.cti.CtiDataRepository;
+import hyphen.ctink.domain.cti.OtherThreatRepository;
 import hyphen.ctink.domain.log.notification.OtherThreatLogService;
 import hyphen.ctink.domain.cti.entity.AttackDetail;
 import hyphen.ctink.domain.cti.entity.CtiData;
@@ -33,6 +35,8 @@ public class AgentResultService {
     private final CtiDataRepository ctiDataRepository;
     private final DetectionRuleRepository detectionRuleRepository;
     private final IocRepository iocRepository;
+    private final OtherThreatRepository otherThreatRepository;
+    private final AttackDetailRepository attackDetailRepository;
 
     private final UpdateTrustLevelService updateTrustLevelService;
     private final OtherThreatLogService otherThreatLogService;
@@ -58,6 +62,7 @@ public class AgentResultService {
                     .analyzedAt(LocalDateTime.now())
                     .build();
 
+            otherThreatRepository.save(threat);
             otherThreatLogService.otherThreatLog();
 
             return;
@@ -130,6 +135,8 @@ public class AgentResultService {
                     .detail(String.valueOf(result.attackDetail()))
                     .analyzedAt(LocalDateTime.now())
                     .build();
+
+            attackDetailRepository.save(detail);
         }
     }
 }

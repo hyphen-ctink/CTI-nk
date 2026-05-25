@@ -19,6 +19,7 @@ public class RabbitMQConfig {
     public static final String TRUST_RESULT_QUEUE = "trust.result.queue";
     public static final String AGENT_QUEUE = "analysis.request.queue";
     public static final String AGENT_RESULT_QUEUE = "analysis.result.queue";
+    public static final String DETECTION_LOG_QUEUE = "log.result.queue";
 
     @Bean
     public Queue collectQueue() {
@@ -59,6 +60,13 @@ public class RabbitMQConfig {
     public Queue agentResultQueue() {
         return QueueBuilder
                 .durable(AGENT_RESULT_QUEUE)
+                .build();
+    }
+
+    @Bean
+    public Queue detectionResultQueue() {
+        return QueueBuilder
+                .durable(DETECTION_LOG_QUEUE)
                 .build();
     }
 
