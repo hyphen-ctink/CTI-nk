@@ -16,8 +16,7 @@ class MediumCollector:
         self.platform_url = platform_url
         self.last_collected_at = last_collected_at
 
-    # 최대 10개 크롤링
-    def get_recent_entries(self, limit=10):
+    def get_recent_entries(self):
         feed = feedparser.parse(self.platform_url)
         results = []
 
@@ -26,6 +25,7 @@ class MediumCollector:
                 published = datetime(*entry.published_parsed[:6])
 
                 if published >= self.last_collected_at:
+                    
                     content_html = ""
                     if "content" in entry:
                         content_html = entry.content[0].value 
@@ -37,9 +37,6 @@ class MediumCollector:
                         "summary": entry.summary,
                         "content": content_html
                     })
-
-                    if len(results) == limit:
-                        break
         
         return results
 

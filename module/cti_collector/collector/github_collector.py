@@ -39,6 +39,10 @@ class GithubRESTCollector:
         headers = self.headers.copy()
         headers["Accept"] = "application/vnd.github.v3.diff"
         response = requests.get(url, headers=headers)
+
+        if response.status_code == 422:
+            return None
+        
         response.raise_for_status()
         return response.text
 
@@ -182,14 +186,16 @@ query {{
                 return []
 
             for issue in issues["nodes"]:
-                updated_at = issue["updatedAt"]
+                updated_at = datetime.fromisoformat(
+                    issue["updatedAt"]).replace(tzinfo=None)
 
                 if self.last_updated_at and updated_at <= self.last_updated_at:
                     return results
                 
                 comments = []
                 for comment in issue["comments"]["nodes"]:
-                    comment_at = comment["updatedAt"]
+                    comment_at = datetime.fromisoformat(
+                        comment["updatedAt"]).replace(tzinfo=None)
                     if self.last_updated_at and comment_at <= self.last_updated_at:
                         continue
 
