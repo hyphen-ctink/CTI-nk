@@ -22,7 +22,7 @@ public class IdsDetectionResultService {
                 .orElseThrow();
         
         IdsDetectionLog log = IdsDetectionLog.builder()
-                .attackType(rule.getAttackType())
+                .detectionRuleId(rule)
                 .detail(result.detail())
                 .result(result.result())
                 .detectedAt(result.detectedAt())

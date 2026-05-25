@@ -6,6 +6,6 @@ public enum AttackType {
     PHISHING,
     DDOS,
     CREDENTIAL_STUFFING,
-    CTI_ONLY,
+    IOC_ONLY,
     OTHER
 }

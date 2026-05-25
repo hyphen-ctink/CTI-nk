@@ -3,6 +3,7 @@ package hyphen.ctink.domain.log.ids.entity;
 import hyphen.ctink.domain.cti.enums.AttackType;
 import hyphen.ctink.domain.log.ids.enums.Result;
 import hyphen.ctink.domain.rule.entity.DetectionRule;
+import hyphen.ctink.domain.rule.enums.RuleType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,9 +21,9 @@ public class IdsDetectionLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "attack_type")
-    @Enumerated(EnumType.STRING)
-    private AttackType attackType;
+    @ManyToOne
+    @JoinColumn(name = "detection_rule_id", nullable = false)
+    private DetectionRule detectionRuleId;
 
     @Column(columnDefinition = "TEXT")
     private String detail;
