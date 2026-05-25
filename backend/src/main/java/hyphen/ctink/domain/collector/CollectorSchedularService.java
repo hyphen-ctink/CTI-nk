@@ -1,6 +1,7 @@
 package hyphen.ctink.domain.collector;
 
 import hyphen.ctink.domain.collector.dto.CollectorJobDTO;
+import hyphen.ctink.domain.cti.CtiDataRepository;
 import hyphen.ctink.domain.platform.CollectionPlatform;
 import hyphen.ctink.domain.platform.CollectionPlatformRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import java.util.List;
 public class CollectorSchedularService {
 
     private final CollectionPlatformRepository platformRepository;
+    private final CtiDataRepository ctiDataRepository;
     private final CollectorService collectorService;
 
     @Transactional
@@ -29,6 +31,25 @@ public class CollectorSchedularService {
             }
 
             collectorService.collect(platform.getId());
+        }
+    }
+
+    @Transactional
+    public void collectionCycleControl() {
+        List<CollectionPlatform> platforms = platformRepository.findAll();
+
+        for (CollectionPlatform platform : platforms) {
+            long count = ctiDataRepository.countByCollectionPlatformAndCollectedAtBetween(
+                    platform,
+                    platform.getCycleResetAt(),
+                    platform.getLastCollectedAt()
+            );
+
+            if (count >= 100) {
+                platform.setCurrentIntervalTime(3);
+            } else {
+                platform.setCurrentIntervalTime(7);
+            }
         }
     }
 }

@@ -3,6 +3,8 @@ package hyphen.ctink.domain.cti;
 import hyphen.ctink.domain.cti.entity.CtiData;
 import hyphen.ctink.domain.cti.enums.ProcessStatus;
 import hyphen.ctink.domain.dashboard.dto.AttackTypeDistributionDTO;
+import hyphen.ctink.domain.platform.CollectionPlatform;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,4 +32,10 @@ public interface CtiDataRepository extends JpaRepository<CtiData, Long> {
     );
 
     List<CtiData> findByProcessStatus(ProcessStatus processStatus);
+
+    long countByCollectionPlatformAndCollectedAtBetween(
+            CollectionPlatform platform,
+            LocalDateTime start,
+            LocalDateTime end
+    );
 }

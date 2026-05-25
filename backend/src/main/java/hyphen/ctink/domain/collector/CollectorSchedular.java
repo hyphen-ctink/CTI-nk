@@ -12,8 +12,9 @@ public class CollectorSchedular {
 
     private final CollectorSchedularService schedularService;
 
-    @Scheduled(cron = "0 0 3 * * MON")
+    @Scheduled(cron = "0 0 3 * * *")
     public void run() {
         schedularService.runCollection();
+        schedularService.collectionCycleControl();
     }
 }
