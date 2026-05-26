@@ -61,8 +61,7 @@ class OTXCollector:
                 created = pulse.get("created")
                 created_time = datetime.fromisoformat(created)
                 
-                for ioc in pulse.get("indicators", []):
-               
+                for ioc in pulse.get("indicators", []):               
                     if created_time > self.last_collected_at:
                         key = ioc.get("id")
                         if key not in seen_datas:

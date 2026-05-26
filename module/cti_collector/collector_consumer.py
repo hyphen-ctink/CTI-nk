@@ -4,6 +4,10 @@ from datetime import datetime, timedelta
 from collector.collector import collector_start
 from collector_producer import send_result
 
+from flask import Flask, request, jsonify
+import requests
+
+
 def callback(ch, method, properties, body):
     data = json.loads(body)
 

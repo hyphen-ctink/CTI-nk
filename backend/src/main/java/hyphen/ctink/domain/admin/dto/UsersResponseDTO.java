@@ -4,7 +4,7 @@ import java.util.List;
 
 public record UsersResponseDTO(
         Long totalCount,
-        Long totalPage,
+        Long totalPages,
         Long currentPage,
         List<UsersDTO> users
 ) {}

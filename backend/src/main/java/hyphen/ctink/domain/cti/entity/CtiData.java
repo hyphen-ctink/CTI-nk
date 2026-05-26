@@ -49,4 +49,23 @@ public class CtiData {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    public void updateSummaryTitle(String title) {
+        this.summaryTitle = title;
+    }
+
+    public void updateAnalysisResult(String content, AttackType attackType) {
+        this.summaryContent = content;
+        this.attackType = attackType;
+        this.processStatus = ProcessStatus.PROCESSING;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void updateAttackType(AttackType attackType) {
+        this.attackType = attackType;
+    }
+
+    public void updateProcessStatus(ProcessStatus status) {
+        this.processStatus = status;
+    }
 }

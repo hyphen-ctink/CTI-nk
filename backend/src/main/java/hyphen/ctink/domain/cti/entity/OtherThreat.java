@@ -1,15 +1,17 @@
 package hyphen.ctink.domain.cti.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
 @Entity
 @Table(name = "other_threat")
+@AllArgsConstructor
+@NoArgsConstructor
 public class OtherThreat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

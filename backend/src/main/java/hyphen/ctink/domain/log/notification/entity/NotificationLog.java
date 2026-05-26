@@ -6,15 +6,17 @@ import hyphen.ctink.domain.user.User;
 import hyphen.ctink.domain.rule.enums.RuleType;
 import hyphen.ctink.domain.rule.entity.DetectionRule;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
 @Entity
 @Table(name = "notification_log")
+@NoArgsConstructor
+@AllArgsConstructor
 public class NotificationLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,10 +29,6 @@ public class NotificationLog {
     @Column(name = "rule_type")
     @Enumerated(EnumType.STRING)
     private RuleType ruleType;
-
-    @ManyToOne
-    @JoinColumn(name = "target_user_id", nullable = false)
-    private User user;
 
     @ManyToOne
     @JoinColumn(name = "rule_id")

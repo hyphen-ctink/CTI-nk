@@ -49,7 +49,7 @@ public class IdsDetectionLogQueryRepository {
     }
 
     private BooleanExpression attackTypeEq(AttackType attackType) {
-        return attackType != null ? idsDetectionLog.attackType.eq(attackType) : null;
+        return attackType != null ? idsDetectionLog.detectionRuleId.attackType.eq(attackType) : null;
     }
 
     private BooleanExpression resultEq(Result result) {

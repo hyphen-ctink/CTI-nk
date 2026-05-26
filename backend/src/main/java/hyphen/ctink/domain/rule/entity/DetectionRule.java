@@ -6,17 +6,18 @@ import hyphen.ctink.domain.cti.entity.CtiData;
 import java.time.LocalDateTime;
 
 import hyphen.ctink.domain.indicator.enums.TrustLevel;
-import hyphen.ctink.domain.rule.enums.OsType;
 import hyphen.ctink.domain.rule.enums.RuleStatus;
 import hyphen.ctink.domain.rule.enums.RuleType;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@Builder
 @Entity
 @Table(name = "detection_rule")
+@NoArgsConstructor
+@AllArgsConstructor
 public class DetectionRule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,10 +34,6 @@ public class DetectionRule {
     @Enumerated(EnumType.STRING)
     private RuleType ruleType;
 
-    @Column(name = "os_type")
-    @Enumerated(EnumType.STRING)
-    private OsType osType;
-
     @Column(name = "rule_content", columnDefinition = "TEXT", nullable = false)
     private String ruleContent;
 
@@ -52,19 +49,19 @@ public class DetectionRule {
     private int version;
 
     @Column(name = "regen_count", nullable = false)
-    private int regenCount;
+    private Long regenCount;
 
     @Column(name = "rule_status", nullable = false)
     @Enumerated(EnumType.STRING)
     private RuleStatus ruleStatus;
 
-    @Column(name = "grammar_result", columnDefinition = "JSON")
+    @Column(name = "grammar_result", columnDefinition = "TEXT")
     private String grammarResult;
 
-    @Column(name = "fn_result", columnDefinition = "JSON")
+    @Column(name = "fn_result", columnDefinition = "TEXT")
     private String fnResult;
 
-    @Column(name = "fp_result", columnDefinition = "JSON")
+    @Column(name = "fp_result", columnDefinition = "TEXT")
     private String fpResult;
 
     @Column(name = "agent_judgement", columnDefinition = "TEXT")

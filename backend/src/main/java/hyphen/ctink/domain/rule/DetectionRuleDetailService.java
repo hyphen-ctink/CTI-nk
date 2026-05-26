@@ -51,7 +51,6 @@ public class DetectionRuleDetailService {
                 detectionRule.getRuleName(),
                 detectionRule.getRuleType(),
                 detectionRule.getRuleStatus(),
-                detectionRule.getOsType(),
                 detectionRule.getRuleContent(),
                 detectionRule.getGrammarResult(),
                 detectionRule.getFnResult(),
@@ -69,7 +68,7 @@ public class DetectionRuleDetailService {
                 .toList();
         List<YaraDTO> yaraList = rules.stream()
                 .filter(r -> r.getRuleType() == RuleType.YARA)
-                .map(r -> new YaraDTO(r.getId(), r.getRuleName(), r.getOsType(), r.getRuleContent()))
+                .map(r -> new YaraDTO(r.getId(), r.getRuleName(), r.getRuleContent()))
                 .toList();
 
         return new DetectionRuleDetailResponseDTO(

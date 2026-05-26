@@ -6,5 +6,5 @@ public record DetectionRuleResponseDTO(
         Long totalCount,
         Long totalPages,
         Long currentPage,
-        List<DetectionRuleDTO> detectionRule
+        List<DetectionRuleDTO> rules
 ) {}

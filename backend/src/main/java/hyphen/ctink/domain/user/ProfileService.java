@@ -12,7 +12,7 @@ public class ProfileService {
     private final UserRepository userRepository;
 
     public ProfileResponseDTO profile(HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
+        Long userId = (Long) session.getAttribute("LOGIN_USER");
 
         if (userId == null) {
             throw new IllegalArgumentException("로그인이 필요합니다.");

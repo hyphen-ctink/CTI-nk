@@ -2,6 +2,7 @@ from collector.medium_collector import MediumCollector
 from collector.otx_collector import OTXCollector
 from collector.github_collector import GithubRESTCollector, GithubQLCollector
 from collector.reddit_collector import RedditCollector
+import json
 
 URL = {
     1: "https://medium.com/feed/@anyrun",

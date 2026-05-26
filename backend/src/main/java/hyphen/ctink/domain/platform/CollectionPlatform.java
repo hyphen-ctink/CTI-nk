@@ -1,6 +1,7 @@
 package hyphen.ctink.domain.platform;
 
 import hyphen.ctink.domain.cti.enums.CollectMethod;
+import hyphen.ctink.domain.cti.enums.CtiPlatform;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.Getter;
@@ -15,7 +16,8 @@ public class CollectionPlatform {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    @Enumerated(EnumType.STRING)
+    private CtiPlatform name;
 
     @Column(name = "collect_method", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -41,6 +43,10 @@ public class CollectionPlatform {
 
     public void updateLastCollectedAt(LocalDateTime now) {
         this.lastCollectedAt = now;
+    }
+
+    public void updateLastCommitSha(String sha) {
+        this.lastCommitSha = sha;
     }
 
     public boolean nextCollectTime(LocalDateTime now) {

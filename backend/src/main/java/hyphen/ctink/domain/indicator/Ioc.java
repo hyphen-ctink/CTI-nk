@@ -6,8 +6,7 @@ import hyphen.ctink.domain.indicator.enums.IoCStatus;
 import hyphen.ctink.domain.indicator.enums.IocType;
 import hyphen.ctink.domain.indicator.enums.TrustLevel;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -15,7 +14,10 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
+@Builder
 @Table(name = "ioc")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Ioc {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -12,6 +12,7 @@ class RedditCollector:
         elif isinstance(last_collected_at, str):
             last_collected_at = datetime.fromisoformat(last_collected_at)
 
+        self.platform_id = config["platform_id"]
         self.last_collected_at = last_collected_at
         self.platform_url = platform_url
 

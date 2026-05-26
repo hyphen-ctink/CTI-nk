@@ -15,8 +15,8 @@ public class UserUpdateService {
     private final UserRepository userRepository;
 
     @Transactional
-    public String userUpdate(UserUpdateRequestDTO req, Long userId) {
-        User user = userRepository.findById(userId)
+    public String userUpdate(UserUpdateRequestDTO req, String loginId) {
+        User user = userRepository.findByLoginId(loginId)
                 .orElseThrow(() ->
                         new IllegalArgumentException("존재하지 않는 사용자입니다."));
 

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class CollectorConsumer {
+
     private final CollectorResultService collectorResultService;
 
     @RabbitListener(queues = "collector.result.queue")
