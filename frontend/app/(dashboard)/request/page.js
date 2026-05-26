@@ -12,7 +12,7 @@ const ATTACK_TYPE_LABEL = {
   PHISHING:            '피싱 공격',
   DDOS:                'DDoS',
   CREDENTIAL_STUFFING: '크리덴셜 스터핑',
-  OTHER:               '기타',
+  IOC_ONLY:            '미분류', 
 };
 
 const RULE_PAGE_SIZE         = 5;

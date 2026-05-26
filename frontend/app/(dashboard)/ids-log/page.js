@@ -12,7 +12,7 @@ const ATTACK_TYPE_LABEL = {
   PHISHING:            '피싱 공격',
   WEB_ATTACK:          '웹페이지 취약점',
   DDOS:                'DDoS',
-  OTHER:               '기타',
+  IOC_ONLY:            '미분류',
 };
 
 const IDS_RESULT_LABEL = {

@@ -13,6 +13,7 @@ const ATTACK_TYPE_LABELS = {
   CREDENTIAL_STUFFING: '크리덴셜 스터핑',
   WEB_ATTACK:          '웹페이지 취약점',
   OTHER:               '기타',
+  IOC_ONLY:            '미분류', 
 };
 
 // ── 처리 상태별 레이블 및 색상 ──────────────────
@@ -33,6 +34,7 @@ const CHART_COLORS = {
   CREDENTIAL_STUFFING: '#112D4E',
   WEB_ATTACK:          '#3F72AF',
   OTHER:               '#c8d6ea',
+  IOC_ONLY:            '#8fa8c8', 
 };
 
 // ── 유틸: ISO 문자열 → MM/DD HH:mm 형식 ─────────

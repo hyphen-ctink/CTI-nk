@@ -49,6 +49,7 @@ const ATTACK_DONUT_COLOR = {
   DDOS:                '#7c6faa',
   CREDENTIAL_STUFFING: '#112D4E',
   WEB_ATTACK:          '#3F72AF',
+  IOC_ONLY:            '#8fa8c8',
 };
 
 // 공격 유형 한글 표시명 (표·총평에서 사용)
@@ -58,6 +59,7 @@ const ATTACK_LABEL = {
   PHISHING:            '피싱 공격',
   WEB_ATTACK:          '웹페이지 취약점',
   DDOS:                'DDoS',
+  IOC_ONLY:            '미분류', 
 };
 // 공격 유형 축약 표시명 (도넛 범례·요약 배너에서 사용)
 const ATTACK_SHORT = {
@@ -66,6 +68,7 @@ const ATTACK_SHORT = {
   PHISHING:            '피싱',
   WEB_ATTACK:          '웹 취약점',
   DDOS:                'DDoS',
+  IOC_ONLY:            '미분류',
 };
 // 바 차트 X축 레이블 (줄바꿈 처리)
 const ATTACK_CHART_LINES = {
@@ -74,6 +77,7 @@ const ATTACK_CHART_LINES = {
   PHISHING:            ['피싱 공격'],
   WEB_ATTACK:          ['웹페이지', '취약점'],
   DDOS:                ['DDoS'],
+  IOC_ONLY:            ['미분류'],
 };
 
 // 신뢰도 텍스트 색상 (카드 수치에 적용)
