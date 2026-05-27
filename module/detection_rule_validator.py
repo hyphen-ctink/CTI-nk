@@ -468,6 +468,50 @@ def _make_snort_normal_pcap(ioc_type: str, normal_value: str, pcap_path: str) ->
     return None
 
 
+
+def _make_snort_normal_batch_pcap(
+    ioc_type: str,
+    normal_values: List[str],
+    pcap_path: str,
+) -> Optional[str]:
+    Ether, IP, ICMP, TCP, Raw, wrpcap, err = _import_scapy()
+
+    if err:
+        return f"scapy import failed: {err}"
+
+    packets = []
+
+    try:
+        for normal_value in normal_values:
+            if ioc_type == "ip":
+                packets.append(
+                    Ether()
+                    / IP(src=normal_value, dst="127.0.0.1")
+                    / ICMP()
+                )
+
+            elif ioc_type in {"domain", "url"}:
+                payload = _http_payload_for_ioc(ioc_type, normal_value)
+                packets.append(
+                    Ether()
+                    / IP(src="10.20.30.40", dst="127.0.0.1")
+                    / TCP(sport=45454, dport=80, flags="PA", seq=1, ack=1)
+                    / Raw(load=payload)
+                )
+
+            else:
+                return f"unsupported snort ioc_type: {ioc_type}"
+
+        if not packets:
+            return "normal dataset is empty"
+
+        wrpcap(pcap_path, packets)
+        return None
+
+    except Exception as exc:
+        return f"normal pcap generation failed: {exc}"
+
+
 def _run_snort_pcap(rule_content: str, pcap_path: str) -> Tuple[bool, str]:
     snort_bin = _which("snort")
     if not snort_bin:
@@ -540,32 +584,71 @@ def _snort_fn_check(rule_content: str, ioc_list: List[Dict[str, str]]) -> Tuple[
     return "success", "-"
 
 
+def _snort_fp_precise_check_type(
+    rule_content: str,
+    ioc_type: str,
+    normal_values: List[str],
+    workdir: str,
+) -> List[str]:
+    failed = []
+
+    for idx, normal_value in enumerate(normal_values):
+        pcap_path = os.path.join(workdir, f"normal_{ioc_type}_{idx}.pcap")
+
+        err = _make_snort_normal_pcap(ioc_type, normal_value, pcap_path)
+
+        if err:
+            failed.append(f"{ioc_type}:{normal_value} ({err})")
+            continue
+
+        alerted, feedback = _run_snort_pcap(rule_content, pcap_path)
+
+        if alerted:
+            failed.append(f"{ioc_type}:{normal_value} (false positive)")
+            break
+
+    return failed
+
+
 def _snort_fp_check(rule_content: str, ioc_list: List[Dict[str, str]]) -> Tuple[str, str]:
     failed = []
+    checked_ioc_types = set()
 
     with tempfile.TemporaryDirectory(prefix="ctink_snort_fp_") as workdir:
         for ioc in ioc_list:
             ioc_type = ioc["ioc_type"]
+
+            if ioc_type in checked_ioc_types:
+                continue
+
+            checked_ioc_types.add(ioc_type)
+
             normal_file = os.path.join(NORMAL_SNORT_DIR, f"{ioc_type}.txt")
             normal_values = _read_lines(normal_file, limit=100)
 
             if not normal_values:
                 return "fail", f"normal dataset not found or empty: {normal_file}"
 
-            for idx, normal_value in enumerate(normal_values):
-                pcap_path = os.path.join(workdir, f"normal_{ioc_type}_{idx}.pcap")
+            batch_pcap_path = os.path.join(workdir, f"normal_{ioc_type}_batch.pcap")
+            err = _make_snort_normal_batch_pcap(ioc_type, normal_values, batch_pcap_path)
 
-                err = _make_snort_normal_pcap(ioc_type, normal_value, pcap_path)
+            if err:
+                failed.append(f"{ioc_type}:batch ({err})")
+                continue
 
-                if err:
-                    failed.append(f"{ioc_type}:{normal_value} ({err})")
-                    continue
+            alerted, feedback = _run_snort_pcap(rule_content, batch_pcap_path)
 
-                alerted, feedback = _run_snort_pcap(rule_content, pcap_path)
+            if not alerted:
+                continue
 
-                if alerted:
-                    failed.append(f"{ioc_type}:{normal_value} (false positive)")
-                    break
+            failed.extend(
+                _snort_fp_precise_check_type(
+                    rule_content,
+                    ioc_type,
+                    normal_values,
+                    workdir,
+                )
+            )
 
     if failed:
         return "fail", "failed normal data: " + ", ".join(failed)
@@ -946,16 +1029,23 @@ def rule_validation_node(state: Dict[str, Any]) -> Dict[str, Any]:
 
 if __name__ == "__main__":
     test_input = {
-  "rule_type": "yara",
+  "rule_type": "snort",
   "ioc_list": [
     {
-      "ioc_type": "hash",
-      "ioc_value": "lksdjflkjsdf9w3roiw3rouowruwo3233wr3"
+      "ioc_type": "ip",
+      "ioc_value": "203.0.113.66"
+    },
+    {
+      "ioc_type": "domain",
+      "ioc_value": "malicious-test.example"
+    },
+    {
+      "ioc_type": "url",
+      "ioc_value": "http://malicious-test.example/dropper.exe"
     }
   ],
-  "rule_content": "import \"hash\"\n\nrule CTI_NK_YARA_One_Hash_Invalid_Format {\n    condition:\n        hash.sha256(0, filesize) == \"lksdjflkjsdf9w3roiw3rouowruwo3233wr3\"\n}"
+  "rule_content": "alert ip 203.0.113.66 any -> any any (msg:\"CTI-NK test malicious ip\"; sid:1000001; rev:1;)\nalert tcp any any> any 80 (msg:\"CTI-NK test malicious domain\"; content:\"malicious-test.example\"; sid:1000002; rev:1;)\nalert tcp any any> any 80 (msg:\"CTI-NK test malicious url\"; content:\"/dropper.exe\"; sid:1000003; rev:1;)"
 }
 
     result = validate_detection_rule(test_input)
     print(json.dumps(result, ensure_ascii=False, indent=2))
-
