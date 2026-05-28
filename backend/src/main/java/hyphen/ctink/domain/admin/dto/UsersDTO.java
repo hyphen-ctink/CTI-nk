@@ -11,6 +11,7 @@ public record UsersDTO(
         String organization,
         String position,
         String email,
+        String phone,
         Role role,
         UserStatus status,
         LocalDateTime lastLoginAt
