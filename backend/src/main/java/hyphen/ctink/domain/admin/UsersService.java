@@ -35,6 +35,7 @@ public class UsersService {
                         user.getOrganization(),
                         user.getPosition(),
                         user.getEmail(),
+                        user.getPhone(),
                         user.getRole(),
                         user.getUserStatus(),
                         user.getLastLoginAt()
