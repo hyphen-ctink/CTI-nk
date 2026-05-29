@@ -18,6 +18,10 @@ import hyphen.ctink.domain.indicator.UpdateTrustLevelService;
 import hyphen.ctink.domain.indicator.enums.IoCStatus;
 import hyphen.ctink.domain.indicator.enums.TrustLevel;
 import hyphen.ctink.domain.log.notification.PendingRuleLogService;
+import hyphen.ctink.domain.log.system.SystemLogRepository;
+import hyphen.ctink.domain.log.system.entity.SystemLog;
+import hyphen.ctink.domain.log.system.enums.LogStatus;
+import hyphen.ctink.domain.log.system.enums.Stage;
 import hyphen.ctink.domain.rule.DetectionRuleRepository;
 import hyphen.ctink.domain.rule.entity.DetectionRule;
 import hyphen.ctink.domain.rule.enums.RuleStatus;
@@ -37,6 +41,7 @@ public class AgentResultService {
     private final IocRepository iocRepository;
     private final OtherThreatRepository otherThreatRepository;
     private final AttackDetailRepository attackDetailRepository;
+    private final SystemLogRepository systemLogRepository;
 
     private final UpdateTrustLevelService updateTrustLevelService;
     private final OtherThreatLogService otherThreatLogService;
@@ -49,6 +54,17 @@ public class AgentResultService {
 
         if (!"success".equals(result.status())) {
             ctiData.updateProcessStatus(ProcessStatus.FAILED);
+
+            SystemLog log = SystemLog.builder()
+                    .createdAt(LocalDateTime.now())
+                    .logStatus(LogStatus.SUCCESS)
+                    .message("CTI Analysis Result Discarded (" + ctiData.getRawData() + ")")
+                    .stage(Stage.REMOVED)
+                    .ctiData(ctiData)
+                    .build();
+
+            systemLogRepository.save(log);
+
             return;
         }
 
@@ -91,6 +107,7 @@ public class AgentResultService {
                                 ctiData.getCollectionPlatform().getName()
                         )
                 )
+                .cti(ctiData)
                 .iocType(result.detectionRule().iocType())
                 .iocValue(result.detectionRule().iocValue())
                 .virustotalConfirmed(false)
@@ -115,10 +132,10 @@ public class AgentResultService {
                 .version(1)
                 .regenCount(result.regenCount())
                 .ruleStatus(RuleStatus.PENDING)
-                .grammarResult(result.feedback().grammarFeedback())
-                .fnResult(result.feedback().fnFeedback())
-                .fpResult(result.feedback().fpFeedback())
-                .agentJudgement(result.feedback().agentFeedback())
+                .grammarResult(result.feedback().grammarResult())
+                .fnResult(result.feedback().fnResult())
+                .fpResult(result.feedback().fpResult())
+                .agentJudgement(result.feedback().agentResult())
                 .isAuto(false)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())

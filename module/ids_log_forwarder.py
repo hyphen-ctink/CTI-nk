@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-# export RABBITMQ_URL=amqp://guest:guest@localhost:5672/%2F
+
 # Backend Dockerfile should contain: RUN pip install pika
+
 import os
 import re
 import json
@@ -11,14 +12,17 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
 
-SNORT_ALERT_FILE = os.getenv("SNORT_ALERT_FILE", "/shared/logs/snort/alert")
-YARA_LOG_FILE = os.getenv("YARA_LOG_FILE", "/shared/logs/yara/yara_scan.log")
+SNORT_ALERT_FILE = os.getenv("SNORT_ALERT_FILE", "/shared/snort_logs/alert")
+YARA_LOG_FILE = os.getenv("YARA_LOG_FILE", "/shared/yara_logs/yara_scan.log")
 
-SNORT_RULE_FILE = os.getenv("SNORT_RULE_FILE", "/shared/rules/snort/local.rules")
-YARA_RULE_FILE = os.getenv("YARA_RULE_FILE", "/shared/rules/yara/ctink_rules.yar")
+SNORT_RULE_FILE = os.getenv("SNORT_RULE_FILE", "/shared/snort_rules/local.rules")
+YARA_RULE_FILE = os.getenv("YARA_RULE_FILE", "/shared/yara_rules/ctink_rules.yar")
 
-RABBITMQ_URL = os.getenv("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/%2F")
-IDS_LOG_OUTPUT_QUEUE = os.getenv("IDS_LOG_OUTPUT_QUEUE", "ids_detection_log")
+RABBITMQ_HOST = "158.247.213.206"
+RABBITMQ_PORT = 5672
+RABBITMQ_USERNAME = "admin"
+RABBITMQ_PASSWORD = "StrongPassword123!"
+IDS_LOG_OUTPUT_QUEUE = "log.result.queue"
 
 POLL_INTERVAL_SEC = float(os.getenv("IDS_LOG_POLL_INTERVAL_SEC", "2"))
 
@@ -60,7 +64,7 @@ YARA_RULE_HEAD_RE = re.compile(
 
 
 def now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
 
 
 def load_text(path: str) -> str:
@@ -181,6 +185,7 @@ def split_host_port(value: str) -> Tuple[str, Optional[int]]:
         return host, int(port_text)
     except ValueError:
         return value, None
+
 
 
 def parse_snort_time(ts: str) -> str:
@@ -362,7 +367,19 @@ class MqPublisher:
     def connect(self) -> None:
         import pika
 
-        params = pika.URLParameters(RABBITMQ_URL)
+        credentials = pika.PlainCredentials(
+            RABBITMQ_USERNAME,
+            RABBITMQ_PASSWORD,
+        )
+
+        params = pika.ConnectionParameters(
+            host=RABBITMQ_HOST,
+            port=RABBITMQ_PORT,
+            credentials=credentials,
+            heartbeat=60,
+            blocked_connection_timeout=30,
+        )
+
         self.connection = pika.BlockingConnection(params)
         self.channel = self.connection.channel()
         self.channel.queue_declare(queue=IDS_LOG_OUTPUT_QUEUE, durable=True)
@@ -484,6 +501,8 @@ def main() -> None:
                 "yara_log_file": YARA_LOG_FILE,
                 "snort_rule_file": SNORT_RULE_FILE,
                 "yara_rule_file": YARA_RULE_FILE,
+                "rabbitmq_host": RABBITMQ_HOST,
+                "rabbitmq_port": RABBITMQ_PORT,
                 "output_queue": IDS_LOG_OUTPUT_QUEUE,
                 "poll_interval_sec": POLL_INTERVAL_SEC,
                 "state_file": STATE_FILE,

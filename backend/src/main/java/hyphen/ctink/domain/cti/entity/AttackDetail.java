@@ -26,7 +26,6 @@ public class AttackDetail {
     @Enumerated(EnumType.STRING)
     private AttackType attackType;
 
-    @Column(columnDefinition = "JSON")
     private String detail;
 
     @Column(name = "analyzed_at", nullable = false)

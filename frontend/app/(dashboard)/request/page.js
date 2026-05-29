@@ -378,7 +378,7 @@ function SectionCard({ title, ruleType, decisions, isAdmin, onDecision, processi
     setHasError(false);
     try {
       const res = await api.get('/ctink/notifications/rules/pending', {
-        params: { rule_type: ruleType, page },
+        params: { ruleType, page },
       });
       const { rules, total_count, total_pages, current_page } = res.data;
       setRules(rules);

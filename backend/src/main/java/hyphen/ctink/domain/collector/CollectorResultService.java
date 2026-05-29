@@ -5,6 +5,10 @@ import hyphen.ctink.domain.collector.dto.CollectorResultDTO;
 import hyphen.ctink.domain.cti.CtiDataRepository;
 import hyphen.ctink.domain.cti.entity.CtiData;
 import hyphen.ctink.domain.cti.enums.ProcessStatus;
+import hyphen.ctink.domain.log.system.SystemLogRepository;
+import hyphen.ctink.domain.log.system.entity.SystemLog;
+import hyphen.ctink.domain.log.system.enums.LogStatus;
+import hyphen.ctink.domain.log.system.enums.Stage;
 import hyphen.ctink.domain.platform.CollectionPlatform;
 import hyphen.ctink.domain.platform.CollectionPlatformRepository;
 import hyphen.ctink.domain.rule.DetectionRuleRepository;
@@ -22,6 +26,7 @@ public class CollectorResultService {
     private final CtiDataRepository ctiDataRepository;
     private final CollectionPlatformRepository collectionPlatformRepository;
     private final DetectionRuleRepository detectionRuleRepository;
+    private final SystemLogRepository systemLogRepository;
     private final AgentProducer agentProducer;
 
     @Transactional
@@ -57,6 +62,16 @@ public class CollectorResultService {
             platform.updateLastCommitSha(result.lastCommitSha());
         }
 
+        SystemLog ctiLog = SystemLog.builder()
+                .createdAt(LocalDateTime.now())
+                .logStatus(LogStatus.SUCCESS)
+                .message("CTI Data Collected")
+                .stage(Stage.COLLECT)
+                .ctiData(entity)
+                .build();
+
+        systemLogRepository.save(ctiLog);
+
         // AI Agent
         long snortRuleCount = detectionRuleRepository.countByRuleType(RuleType.SNORT);
         agentProducer.send(new AgentJobDTO(
@@ -65,5 +80,15 @@ public class CollectorResultService {
                 entity.getCollectionPlatform().getId(),
                 entity.getRawData()
         ));
+
+        SystemLog agentLog = SystemLog.builder()
+                .createdAt(LocalDateTime.now())
+                .logStatus(LogStatus.SUCCESS)
+                .message("CTI Analysis Started")
+                .stage(Stage.PROCESS)
+                .ctiData(entity)
+                .build();
+
+        systemLogRepository.save(agentLog);
     }
 }

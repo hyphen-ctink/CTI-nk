@@ -4,6 +4,7 @@ import hyphen.ctink.domain.cti.enums.CtiPlatform;
 import hyphen.ctink.domain.indicator.enums.TrustLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
@@ -13,6 +14,7 @@ public class UpdateTrustLevelService {
 
     private final IocRepository iocRepository;
 
+    @Transactional
     public void updateTrustLevel(Long iocId) {
         Ioc ioc = iocRepository.findById(iocId)
                 .orElseThrow(() -> new RuntimeException("Ioc not found"));

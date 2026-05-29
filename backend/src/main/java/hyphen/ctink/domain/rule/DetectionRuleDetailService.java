@@ -22,8 +22,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DetectionRuleDetailService {
     private final DetectionRuleRepository detectionRuleRepository;
-    private final IocCtiRepository iocCtiRepository;
-    private final DetectionRuleIocRepository detectionRuleIocRepository;
     private final IocRepository iocRepository;
 
     public DetectionRuleDetailResponseDTO getRuleDetail(Integer ruleId) {
@@ -36,8 +34,7 @@ public class DetectionRuleDetailService {
         String sourceUrl = cti.getSourceUrl();
         AttackType attackType = cti.getAttackType();
 
-        List<Long> iocIdList = iocCtiRepository.findIocIdsByCtiId(ctiId);
-        List<IocDTO> iocList = iocRepository.findByIdIn(iocIdList).stream()
+        List<IocDTO> iocList = iocRepository.findByCtiId(ctiId).stream()
                 .map(ioc -> new IocDTO(
                         ioc.getIocType(),
                         ioc.getIocValue()
@@ -60,14 +57,15 @@ public class DetectionRuleDetailService {
                 detectionRule.getCreatedAt()
         );
 
-        List<Long> ruleIdList = detectionRuleIocRepository.findRuleIdsByIocIds(iocIdList);
-        List<DetectionRule> rules = detectionRuleRepository.findByIdIn(ruleIdList);
+        List<DetectionRule> rules = detectionRuleRepository.findByCtiId(ctiId);
         List<SnortDTO> snortList = rules.stream()
                 .filter(r -> r.getRuleType() == RuleType.SNORT)
+                .filter(r -> !r.getRuleContent().equals(detectionRule.getRuleContent()))
                 .map(r -> new SnortDTO(r.getId(), r.getRuleName(), r.getRuleContent()))
                 .toList();
         List<YaraDTO> yaraList = rules.stream()
                 .filter(r -> r.getRuleType() == RuleType.YARA)
+                .filter(r -> !r.getRuleContent().equals(detectionRule.getRuleContent()))
                 .map(r -> new YaraDTO(r.getId(), r.getRuleName(), r.getRuleContent()))
                 .toList();
 

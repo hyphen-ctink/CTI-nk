@@ -8,6 +8,8 @@ import hyphen.ctink.domain.rule.enums.RuleStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class PendingRuleLogService {
@@ -21,6 +23,7 @@ public class PendingRuleLogService {
                     .ruleType(rule.getRuleType())
                     .detectionRule(rule)
                     .isSent(false)
+                    .createdAt(LocalDateTime.now())
                     .build();
 
             notificationLogRepository.save(log);

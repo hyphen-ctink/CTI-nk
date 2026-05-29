@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class IdsDetectionResultService {
@@ -25,7 +27,7 @@ public class IdsDetectionResultService {
                 .detectionRuleId(rule)
                 .detail(result.detail())
                 .result(result.result())
-                .detectedAt(result.detectedAt())
+                .detectedAt(LocalDateTime.now())
                 .build();
 
         idsDetectionLogRepository.save(log);
