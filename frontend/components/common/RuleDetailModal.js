@@ -211,10 +211,10 @@ export default function RuleDetailModal({ ruleId, ruleName, onClose }) {
 
   const tr = detail?.target_rule;
 
-  // grammar_detail 등이 null이면 검증 전 상태 → VerifyChip/VerifyRow에 null 전달
-  const grammarPass = tr?.grammar_detail ? tr.grammar_detail.grammar_result === 'success' : null;
-  const fnPass      = tr?.fn_detail      ? tr.fn_detail.fn_result            === 'success' : null;
-  const fpPass      = tr?.fp_detail      ? tr.fp_detail.fp_result            === 'success' : null;
+  // grammar_result 등이 null이면 검증 전 상태 → VerifyChip/VerifyRow에 null 전달
+  const grammarPass = tr?.grammar_result != null ? tr.grammar_result === 'success' : null;
+  const fnPass      = tr?.fn_result      != null ? tr.fn_result      === 'success' : null;
+  const fpPass      = tr?.fp_result      != null ? tr.fp_result      === 'success' : null;
 
   return (
     <div
