@@ -12,7 +12,7 @@ const ATTACK_TYPE_LABEL = {
   PHISHING:            '피싱 공격',
   DDOS:                'DDoS',
   CREDENTIAL_STUFFING: '크리덴셜 스터핑',
-  IOC_ONLY:            '미분류', 
+  IOC_ONLY:            '침해 지표', 
 };
 
 const RULE_PAGE_SIZE         = 5;
@@ -378,7 +378,7 @@ function SectionCard({ title, ruleType, decisions, isAdmin, onDecision, processi
     setHasError(false);
     try {
       const res = await api.get('/ctink/notifications/rules/pending', {
-        params: { rule_type: ruleType, page },
+        params: { ruleType, page },
       });
       const { rules, total_count, total_pages, current_page } = res.data;
       setRules(rules);

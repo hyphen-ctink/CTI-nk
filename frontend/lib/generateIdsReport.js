@@ -48,8 +48,8 @@ const ATTACK_DONUT_COLOR = {
   PHISHING:            '#c4845a',
   DDOS:                '#7c6faa',
   CREDENTIAL_STUFFING: '#112D4E',
-  WEB_ATTACK:          '#3F72AF',
-  IOC_ONLY:            '#8fa8c8',
+  WEB_ATTACK:          '#3F72AF', 
+  IOC_ONLY:            '#8fa8c8', 
 };
 
 // 공격 유형 한글 표시명 (표·총평에서 사용)
@@ -59,16 +59,16 @@ const ATTACK_LABEL = {
   PHISHING:            '피싱 공격',
   WEB_ATTACK:          '웹페이지 취약점',
   DDOS:                'DDoS',
-  IOC_ONLY:            '미분류', 
+  IOC_ONLY:            '침해 지표', 
 };
 // 공격 유형 축약 표시명 (도넛 범례·요약 배너에서 사용)
 const ATTACK_SHORT = {
   RANSOMWARE:          '랜섬웨어',
-  CREDENTIAL_STUFFING: '크리덴셜',
-  PHISHING:            '피싱',
-  WEB_ATTACK:          '웹 취약점',
+  PHISHING:            '피싱 공격',
   DDOS:                'DDoS',
-  IOC_ONLY:            '미분류',
+  CREDENTIAL_STUFFING: '크리덴셜 스터핑',
+  WEB_ATTACK:          '웹페이지 취약점',
+  IOC_ONLY:            '침해 지표', 
 };
 // 바 차트 X축 레이블 (줄바꿈 처리)
 const ATTACK_CHART_LINES = {
@@ -77,7 +77,7 @@ const ATTACK_CHART_LINES = {
   PHISHING:            ['피싱 공격'],
   WEB_ATTACK:          ['웹페이지', '취약점'],
   DDOS:                ['DDoS'],
-  IOC_ONLY:            ['미분류'],
+  IOC_ONLY:            ['침해 지표'],
 };
 
 // 신뢰도 텍스트 색상 (카드 수치에 적용)
@@ -309,7 +309,7 @@ const s = StyleSheet.create({
 // 공격 유형별 조회/비교 주간 바 차트 (차트 크기: H 수정 시 mBottom도 확인)
 function PdfBarChart({ data }) {
   const W = 511, H = 150;
-  const mTop = 12, mRight = 16, mBottom = 36, mLeft = 32;
+  const mTop = 12, mRight = 16, mBottom = 42, mLeft = 32;
   const cW = W - mLeft - mRight, cH = H - mTop - mBottom;
   const maxRaw = Math.max(...data.flatMap(d => [d.thisWeek, d.prevWeek]), 1);
   const yMax   = niceMax(maxRaw);

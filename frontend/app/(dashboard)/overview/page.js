@@ -13,7 +13,8 @@ const ATTACK_TYPE_LABELS = {
   CREDENTIAL_STUFFING: '크리덴셜 스터핑',
   WEB_ATTACK:          '웹페이지 취약점',
   OTHER:               '기타',
-  IOC_ONLY:            '미분류', 
+  IOC_ONLY:            '침해 지표', 
+  null:                '미분류',
 };
 
 // ── 처리 상태별 레이블 및 색상 ──────────────────
@@ -33,8 +34,9 @@ const CHART_COLORS = {
   DDOS:                '#7c6faa',
   CREDENTIAL_STUFFING: '#112D4E',
   WEB_ATTACK:          '#3F72AF',
-  OTHER:               '#c8d6ea',
+  OTHER:               '#9eb5a8',
   IOC_ONLY:            '#8fa8c8', 
+  null:                '#c8d6ea',
 };
 
 // ── 유틸: ISO 문자열 → MM/DD HH:mm 형식 ─────────
