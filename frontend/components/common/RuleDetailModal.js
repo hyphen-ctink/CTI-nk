@@ -14,7 +14,7 @@ const ATTACK_TYPE_LABEL = {
   PHISHING:            '피싱 공격',
   WEB_ATTACK:          '웹페이지 취약점',
   DDOS:                'DDoS',
-  IOC_ONLY:            '미분류',
+  IOC_ONLY:            '침해 지표',
 };
 
 const TRUST_STYLE = {
@@ -170,7 +170,7 @@ function Section({ title, children }) {
   );
 }
 
-// pass: true(통과) / false(실패) / null·undefined(검증 전 → '-' 표시)
+// pass: success(통과) / failure(실패) / null·undefined(검증 전 → '-' 표시)
 function VerifyRow({ label, pass }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0', borderBottom: '1px solid var(--ctink-border)' }}>
@@ -212,9 +212,9 @@ export default function RuleDetailModal({ ruleId, ruleName, onClose }) {
   const tr = detail?.target_rule;
 
   // grammar_detail 등이 null이면 검증 전 상태 → VerifyChip/VerifyRow에 null 전달
-  const grammarPass = tr?.grammar_detail ? tr.grammar_detail.grammar_result === 'true' : null;
-  const fnPass      = tr?.fn_detail      ? tr.fn_detail.fn_result            === 'true' : null;
-  const fpPass      = tr?.fp_detail      ? tr.fp_detail.fp_result            === 'true' : null;
+  const grammarPass = tr?.grammar_detail ? tr.grammar_detail.grammar_result === 'success' : null;
+  const fnPass      = tr?.fn_detail      ? tr.fn_detail.fn_result            === 'success' : null;
+  const fpPass      = tr?.fp_detail      ? tr.fp_detail.fp_result            === 'success' : null;
 
   return (
     <div

@@ -17,7 +17,7 @@ const ATTACK_TYPE_LABEL = {
   PHISHING:            '피싱 공격',
   WEB_ATTACK:          '웹페이지 취약점',
   DDOS:                'DDoS',
-  IOC_ONLY:            '미분류', 
+  IOC_ONLY:            '침해 지표', 
 };
 
 const STATUS_LABEL = {
