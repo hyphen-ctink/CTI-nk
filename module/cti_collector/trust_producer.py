@@ -3,7 +3,15 @@ import json
 from datetime import datetime
 
 def send_result(message: dict):
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host="localhost"))
+    credentials = pika.PlainCredentials("admin", "StrongPassword123!")
+
+    connection = pika.BlockingConnection(
+        pika.ConnectionParameters(
+            host="158.247.213.206",
+            port=5672,
+            credentials=credentials
+        )
+    )
     channel = connection.channel()
     channel.queue_declare(queue='trust.result.queue', durable=True)
 

@@ -23,7 +23,8 @@ public class RuleNotificationLogQueryRepository {
         List<NotificationLog> content = queryFactory
                 .selectFrom(notificationLog)
                 .where(
-                    ruleTypeEq(ruleType)
+                        ruleTypeEq(ruleType),
+                        decisionIsNull()
                 )
                 .orderBy(notificationLog.createdAt.desc())
                 .offset(pageable.getOffset())
@@ -34,7 +35,8 @@ public class RuleNotificationLogQueryRepository {
                 .select(notificationLog.count())
                 .from(notificationLog)
                 .where(
-                        ruleTypeEq(ruleType)
+                        ruleTypeEq(ruleType),
+                        decisionIsNull()
                 )
                 .fetchOne();
 
@@ -43,5 +45,9 @@ public class RuleNotificationLogQueryRepository {
 
     private BooleanExpression ruleTypeEq(RuleType ruleType) {
         return ruleType != null ? notificationLog.ruleType.eq(ruleType) : null;
+    }
+
+    private BooleanExpression decisionIsNull() {
+        return notificationLog.decision.isNull();
     }
 }

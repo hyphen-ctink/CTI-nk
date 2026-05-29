@@ -5,15 +5,17 @@ import hyphen.ctink.domain.log.system.enums.LogStatus;
 import hyphen.ctink.domain.log.system.enums.Stage;
 import hyphen.ctink.domain.rule.entity.DetectionRule;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
 @Entity
 @Table(name = "system_log")
+@AllArgsConstructor
+@NoArgsConstructor
 public class SystemLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

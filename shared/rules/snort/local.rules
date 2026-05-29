@@ -1,0 +1,18 @@
+alert tcp any any -> any any ( msg:"CTINK IOC_ONLY domain fifa.black"; content:"fifa.black"; nocase; sid:1000000; rev:1; )
+
+alert tcp any any -> any any ( msg:"CTINK IOC_ONLY domain fifa.red"; content:"fifa.red"; nocase; sid:1000000; rev:1; )
+
+alert tcp any any -> any any ( msg:"CTINK IOC_ONLY domain fifa.fund"; content:"fifa.fund"; nocase; sid:1000000; rev:1; )
+
+alert tcp 148.178.22.16 any -> any any ( msg:"CTINK IOC_ONLY from 148.178.22.16"; sid:1000000; rev:1; )
+
+alert tcp any any -> any any ( msg:"CTINK IOC_ONLY domain fifa-com.store"; content:"fifa-com.store"; nocase; sid:1000000; rev:1; )
+
+alert tcp any any -> any any ( msg:"CTINK IOC_ONLY domain fifa-com.website"; content:"fifa-com.website"; nocase; sid:1000000; rev:1; )
+
+alert tcp any any -> any any ( msg:"CTINK IOC_ONLY domain fifa.city"; content:"fifa.city"; nocase; sid:1000000; rev:1; )
+
+alert tcp 154.86.0.33 any -> any any ( msg:"CTINK IOC_ONLY from 154.86.0.33"; sid:1000000; rev:1; )
+
+alert tcp any any -> any any ( msg:"CTINK IOC_ONLY domain fifa-com.vip"; content:"fifa-com.vip"; nocase; sid:1000000; rev:1; )
+

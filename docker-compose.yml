@@ -1,60 +1,83 @@
 services:
   frontend:
+    build: ./frontend
     image: ctink-frontend:latest
     container_name: ctink-frontend
     ports:
       - "3000:3000"
     depends_on:
       - backend
-      
+
   backend:
+    build: ./backend
     image: ctink-backend:latest
     container_name: ctink-backend
     ports:
       - "8080:8080"
+    volumes:
+      - ctink_snort_rules:/app/snort_rules
+      - ctink_snort_rules:/app/yara_rules
+      
     depends_on:
       mysql:
         condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
+
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://ctink-mysql:3306/ctink?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=1234
-      - SPRING_RABBITMQ_HOST=ctink-rabbitmq
-      - SPRING_RABBITMQ_PORT=5672
+      SPRING_DATASOURCE_URL: jdbc:mysql://ctink-mysql:3306/ctink?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 1234
+
+      SPRING_RABBITMQ_HOST: 158.247.213.206
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: admin
+      SPRING_RABBITMQ_PASSWORD: StrongPassword123!
+
+  python:
+    build: ./module
+    image: ctink-module:latest
+    container_name: ctink-module
+    environment:
+      RABBITMQ_URL: amqp://admin:StrongPassword123%21@158.247.213.206:5672/%2F
+      IDS_LOG_OUTPUT_QUEUE: log.result.queue
+    volumes:
+      - ctink_snort_rules:/shared/snort_rules
+      - ctink_yara_rules:/shared/yara_rules
+      - ctink_snort_logs:/shared/snort_logs
+      - ctink_yara_logs:/shared/yara_logs
+    depends_on:
+      - backend
 
   mysql:
     image: mysql:8.0
     container_name: ctink-mysql
+
     environment:
       MYSQL_ROOT_PASSWORD: 1234
       MYSQL_DATABASE: ctink
+
     ports:
       - "3306:3306"
+
     volumes:
       - mysql_data:/var/lib/mysql
+
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
-      interval: 5s
-      timeout: 5s     
-      retries: 10
-
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: ctink-rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 5s
       timeout: 5s
       retries: 10
 
-
 volumes:
   mysql_data:
-  rabbitmq_data:
+
+  ctink_snort_rules:
+    external: true
+
+  ctink_yara_rules:
+    external: true
+
+  ctink_snort_logs:
+    external: true
+
+  ctink_yara_logs:
+    external: true

@@ -74,6 +74,7 @@ def collector_start(json: dict):
             collector = RedditCollector(json, URL[12])
             results = collector.collect()
         
+        print(results)
         return results
     
     except Exception as e:

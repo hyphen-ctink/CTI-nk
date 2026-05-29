@@ -1,6 +1,7 @@
 package hyphen.ctink.domain.indicator;
 
 import hyphen.ctink.domain.cti.CtiPlatformConverter;
+import hyphen.ctink.domain.cti.entity.CtiData;
 import hyphen.ctink.domain.cti.enums.CtiPlatform;
 import hyphen.ctink.domain.indicator.enums.IoCStatus;
 import hyphen.ctink.domain.indicator.enums.IocType;
@@ -22,6 +23,10 @@ public class Ioc {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "cti_id", nullable = false)
+    private CtiData cti;
 
     @Convert(converter = CtiPlatformConverter.class)
     @Column(name = "platform_name")

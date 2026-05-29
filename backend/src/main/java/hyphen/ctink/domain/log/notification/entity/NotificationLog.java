@@ -51,4 +51,8 @@ public class NotificationLog {
 
     @Column(name = "responded_at")
     private LocalDateTime respondedAt;
+
+    public void updateIsApplied(Boolean isApplied) {
+        this.isApplied = isApplied;
+    }
 }

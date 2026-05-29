@@ -7,7 +7,7 @@ class MediumCollector:
         last_collected_at = config.get("last_collected_at")
 
         if last_collected_at is None:
-            last_collected_at = datetime.now() - timedelta(days=7)
+            last_collected_at = datetime.now() - timedelta(days=30)
 
         elif isinstance(last_collected_at, str):
             last_collected_at = datetime.fromisoformat(last_collected_at)

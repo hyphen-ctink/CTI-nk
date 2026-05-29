@@ -3,6 +3,7 @@ package hyphen.ctink.domain.log.notification;
 import hyphen.ctink.domain.log.notification.entity.NotificationLog;
 import hyphen.ctink.domain.log.notification.enums.Decision;
 import hyphen.ctink.domain.log.notification.enums.NotificationType;
+import hyphen.ctink.domain.rule.entity.DetectionRule;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,4 +31,6 @@ public interface NotificationLogRepository extends JpaRepository<NotificationLog
             @Param("decision") Decision decision,
             @Param("respondedAt") LocalDateTime respondedAt
     );
+
+    NotificationLog findByDetectionRule(DetectionRule rule);
 }

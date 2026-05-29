@@ -30,8 +30,14 @@ def callback(ch, method, properties, body):
     except Exception as e:
         ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
 
+credentials = pika.PlainCredentials("admin", "StrongPassword123!")
+
 connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host="localhost")
+    pika.ConnectionParameters(
+        host="158.247.213.206",
+        port=5672,
+        credentials=credentials
+    )
 )
 channel = connection.channel()
 

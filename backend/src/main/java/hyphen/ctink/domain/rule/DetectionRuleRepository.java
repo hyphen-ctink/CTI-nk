@@ -31,4 +31,6 @@ public interface DetectionRuleRepository extends JpaRepository<DetectionRule, Lo
     List<DetectionRule> findByRuleType(RuleType ruleType);
 
     Optional<DetectionRule> findByRuleContent(String s);
+
+    List<DetectionRule> findByCtiId(Long ctiId);
 }
