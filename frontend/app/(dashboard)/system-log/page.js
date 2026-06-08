@@ -174,8 +174,8 @@ export default function SystemLogPage() {
         page:      currentPage,
         stage:     sysStage    || undefined,
         status:    sysStatus   || undefined,
-        date_from: sysDateFrom || undefined,
-        date_to:   sysDateTo   || undefined,
+        dateFrom: sysDateFrom || undefined,
+        dateTo:   sysDateTo   || undefined,
       },
       signal: controller.signal, // 필터 변경 시 이전 요청 취소
     })

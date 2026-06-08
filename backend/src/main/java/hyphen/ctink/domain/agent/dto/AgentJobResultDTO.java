@@ -12,7 +12,7 @@ public record AgentJobResultDTO(
         Long ctiDataId,
         String status,
         @Nullable AttackType attackType,
-        @Nullable AttackDetailDTO attackDetail,
+        @Nullable String attackDetail,
         @Nullable String summary,
         @Nullable DetectionRuleDTO detectionRule,
         @Nullable FeedbackDTO feedback,

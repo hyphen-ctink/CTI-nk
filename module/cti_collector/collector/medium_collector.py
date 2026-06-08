@@ -52,7 +52,7 @@ class MediumCollector:
 
         for entry in entries:
             content_text = self.html_to_text(entry["content"])
-
+            
             result = {
                 "platform_id": self.platform_id,
                 "status": "success",

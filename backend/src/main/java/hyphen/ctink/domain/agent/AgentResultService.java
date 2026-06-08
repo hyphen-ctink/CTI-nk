@@ -69,6 +69,7 @@ public class AgentResultService {
         }
 
         ctiData.updateAnalysisResult(result.summary(), result.attackType());
+        ctiData.updateProcessStatus(ProcessStatus.PROCESSING);
 
         // 기타 유형인 경우
         if (result.attackType() == AttackType.OTHER) {

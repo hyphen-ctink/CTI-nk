@@ -27,7 +27,7 @@ public class IdsDetectionResultService {
                 .detectionRuleId(rule)
                 .detail(result.detail())
                 .result(result.result())
-                .detectedAt(LocalDateTime.now())
+                .detectedAt(result.detectedAt())
                 .build();
 
         idsDetectionLogRepository.save(log);

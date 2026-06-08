@@ -22,3 +22,4 @@ node_modules/
 /src/main/java/hyphen/ctink/domain/agent/AgentTest.java
 /src/main/java/hyphen/ctink/domain/agent/AgentTestService.java
 /src/main/java/hyphen/ctink/domain/rule/RuleExportTest.java
+/src/main/java/hyphen/ctink/domain/indicator/TrustLevelTest.java
