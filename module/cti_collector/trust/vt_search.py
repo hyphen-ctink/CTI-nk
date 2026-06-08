@@ -28,6 +28,7 @@ def search_vt(target: str) -> dict:
 def is_exist_vi(target: str) -> bool:
     result = search_vt(target)
     data = result.get("data", [])
+
     if not data:
         return False
     

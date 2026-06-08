@@ -195,10 +195,10 @@ export default function IdsLogPage() {
         const r = await api.get('/ctink/logs/ids', {
           params: {
             page:        currentPage,
-            attack_type: idsAttackType || undefined,
+            attackType: idsAttackType || undefined,
             result:      idsResult     || undefined,
-            date_from:   idsDateFrom   || undefined,
-            date_to:     idsDateTo     || undefined,
+            dateFrom:   idsDateFrom   || undefined,
+            dateTo:     idsDateTo     || undefined,
           },
         });
         if (cancelled) return;

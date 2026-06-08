@@ -7,7 +7,7 @@ def send_result(message: dict):
 
     connection = pika.BlockingConnection(
         pika.ConnectionParameters(
-            host="158.247.213.206",
+            host="141.164.37.213",
             port=5672,
             credentials=credentials
         )

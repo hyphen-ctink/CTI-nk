@@ -181,12 +181,12 @@ export default function RulePage() {
       setError(null);
       const params = { page };
       if (search)         params.search      = search;
-      if (filterAttack)   params.attack_type = filterAttack;   // 예: 'RANSOMWARE'
-      if (filterRuleType) params.rule_type   = filterRuleType; // 예: 'SNORT'
-      if (filterTrust)    params.trust_level = filterTrust;    // 예: 'HIGH'
+      if (filterAttack)   params.attackType = filterAttack;   // 예: 'RANSOMWARE'
+      if (filterRuleType) params.ruleType   = filterRuleType; // 예: 'SNORT'
+      if (filterTrust)    params.trustLevel = filterTrust;    // 예: 'HIGH'
       if (filterStatus)   params.status      = filterStatus;   // 예: 'ACTIVE'
-      if (dateFrom)       params.date_from   = dateFrom;
-      if (dateTo)         params.date_to     = dateTo;
+      if (dateFrom)       params.dateFrom   = dateFrom;
+      if (dateTo)         params.dateTo     = dateTo;
       const { data } = await api.get('/ctink/rules', { params, signal });
       setRules(data.rules);
       setTotalCount(data.total_count);

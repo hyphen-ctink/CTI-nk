@@ -41,6 +41,8 @@ public class IdsDetectionLogService {
         Page<IdsDetectionLogDTO> result = queryResult.map(idsDetectionLog ->
                 new IdsDetectionLogDTO(
                         idsDetectionLog.getId(),
+                        idsDetectionLog.getDetectionRuleId().getId(),
+                        idsDetectionLog.getDetectionRuleId().getRuleName(),
                         idsDetectionLog.getDetectionRuleId().getAttackType(), 
                         idsDetectionLog.getResult(),
                         idsDetectionLog.getDetectedAt()

@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 
 public record IdsDetectionLogDTO(
     Long logId,
+    Long ruleId,
+    String ruleName,
     AttackType attackType,
     Result result,
     LocalDateTime detectedAt

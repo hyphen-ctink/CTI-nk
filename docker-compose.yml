@@ -27,7 +27,7 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 1234
 
-      SPRING_RABBITMQ_HOST: 158.247.213.206
+      SPRING_RABBITMQ_HOST: 141.164.37.213
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: admin
       SPRING_RABBITMQ_PASSWORD: StrongPassword123!
@@ -37,7 +37,7 @@ services:
     image: ctink-module:latest
     container_name: ctink-module
     environment:
-      RABBITMQ_URL: amqp://admin:StrongPassword123%21@158.247.213.206:5672/%2F
+      RABBITMQ_URL: amqp://admin:StrongPassword123%21@158.247.204.180:5672/%2F
       IDS_LOG_OUTPUT_QUEUE: log.result.queue
     volumes:
       - ctink_snort_rules:/shared/snort_rules

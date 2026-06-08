@@ -10,5 +10,5 @@ public record IdsDetectionResultDTO(
     String ruleContent,
     String detail,
     Result result,
-    Instant detectedAt
+    LocalDateTime detectedAt
 ) {}

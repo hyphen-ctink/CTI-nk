@@ -18,7 +18,7 @@ YARA_LOG_FILE = os.getenv("YARA_LOG_FILE", "/shared/yara_logs/yara_scan.log")
 SNORT_RULE_FILE = os.getenv("SNORT_RULE_FILE", "/shared/snort_rules/local.rules")
 YARA_RULE_FILE = os.getenv("YARA_RULE_FILE", "/shared/yara_rules/ctink_rules.yar")
 
-RABBITMQ_HOST = "158.247.213.206"
+RABBITMQ_HOST = "141.164.37.213"
 RABBITMQ_PORT = 5672
 RABBITMQ_USERNAME = "admin"
 RABBITMQ_PASSWORD = "StrongPassword123!"
@@ -67,6 +67,26 @@ def now_iso() -> str:
     return datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
 
 
+def format_detected_at(value: Any) -> str:
+    if value is None:
+        return now_iso()
+
+    if isinstance(value, datetime):
+        return value.replace(tzinfo=None).isoformat()
+
+    text = str(value).strip()
+
+    if not text:
+        return now_iso()
+
+    if text.endswith("Z"):
+        text = text[:-1]
+
+    text = re.sub(r"([+-]\d{2}:\d{2})$", "", text)
+
+    return text
+
+
 def load_text(path: str) -> str:
     try:
         return Path(path).read_text(encoding="utf-8", errors="ignore")
@@ -87,6 +107,8 @@ def load_state() -> Dict[str, Any]:
         state.setdefault("offsets", {})
         state.setdefault("buffers", {})
         state.setdefault("sent_hashes", [])
+        state.setdefault("sent_event_hashes", [])
+
         return state
 
     except Exception:
@@ -94,6 +116,7 @@ def load_state() -> Dict[str, Any]:
             "offsets": {},
             "buffers": {},
             "sent_hashes": [],
+            "sent_event_hashes": [],
         }
 
 
@@ -109,12 +132,18 @@ def save_state(state: Dict[str, Any]) -> None:
     os.replace(tmp_path, STATE_FILE)
 
 
-def event_hash(engine: str, raw_line: str) -> str:
-    return hashlib.sha256(f"{engine}|{raw_line}".encode("utf-8")).hexdigest()
+def stable_json_hash(obj: Dict[str, Any]) -> str:
+    normalized = json.dumps(
+        obj,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 
-def remember_sent(state: Dict[str, Any], hash_value: str) -> None:
-    sent = state.setdefault("sent_hashes", [])
+def remember_sent_hash(state: Dict[str, Any], list_name: str, hash_value: str) -> None:
+    sent = state.setdefault(list_name, [])
 
     if hash_value in sent:
         return
@@ -125,8 +154,56 @@ def remember_sent(state: Dict[str, Any], hash_value: str) -> None:
         del sent[: len(sent) - MAX_SENT_HASHES]
 
 
-def was_sent(state: Dict[str, Any], hash_value: str) -> bool:
-    return hash_value in set(state.get("sent_hashes", []))
+def was_sent_hash(state: Dict[str, Any], list_name: str, hash_value: str) -> bool:
+    return hash_value in set(state.get(list_name, []))
+
+
+def build_event_dedupe_hash(payload: Dict[str, Any]) -> str:
+    try:
+        detail = json.loads(payload.get("detail", "{}"))
+    except json.JSONDecodeError:
+        detail = {}
+
+    engine = detail.get("engine")
+
+    if engine == "snort":
+        key = {
+            "engine": "snort",
+            "gid": detail.get("gid"),
+            "sid": detail.get("sid"),
+            "rev": detail.get("rev"),
+            "message": detail.get("message"),
+            "classification": detail.get("classification"),
+            "priority": detail.get("priority"),
+            "protocol": detail.get("protocol"),
+            "src_ip": detail.get("src_ip"),
+            "src_port": detail.get("src_port"),
+            "dst_ip": detail.get("dst_ip"),
+            "dst_port": detail.get("dst_port"),
+            "result": payload.get("result"),
+            "rule_content": payload.get("rule_content"),
+        }
+        return stable_json_hash(key)
+
+    if engine == "yara":
+        key = {
+            "engine": "yara",
+            "rule_name": detail.get("rule_name"),
+            "target_path": detail.get("target_path"),
+            "rule_file": detail.get("rule_file"),
+            "scan_target": detail.get("scan_target"),
+            "result": payload.get("result"),
+            "rule_content": payload.get("rule_content"),
+        }
+        return stable_json_hash(key)
+
+    key = {
+        "engine": engine,
+        "result": payload.get("result"),
+        "rule_content": payload.get("rule_content"),
+        "detail": payload.get("detail"),
+    }
+    return stable_json_hash(key)
 
 
 def read_new_lines(path: str, state: Dict[str, Any]) -> List[str]:
@@ -187,11 +264,10 @@ def split_host_port(value: str) -> Tuple[str, Optional[int]]:
         return value, None
 
 
-
 def parse_snort_time(ts: str) -> str:
     year = datetime.now(timezone.utc).year
     dt = datetime.strptime(f"{year}/{ts}", "%Y/%m/%d-%H:%M:%S.%f")
-    return dt.replace(tzinfo=timezone.utc).isoformat()
+    return format_detected_at(dt)
 
 
 def build_snort_rule_map() -> Dict[str, Dict[str, str]]:
@@ -338,7 +414,7 @@ def parse_yara_log_line(
     if not rule_content and not SEND_UNMATCHED:
         return None
 
-    detected_at = str(obj.get("timestamp") or now_iso())
+    detected_at = format_detected_at(obj.get("timestamp") or now_iso())
 
     detail_obj = {
         "engine": "yara",
@@ -425,18 +501,32 @@ def process_snort_logs(
     lines = read_new_lines(SNORT_ALERT_FILE, state)
 
     for line in lines:
-        h = event_hash("snort", line)
-
-        if was_sent(state, h):
-            continue
-
         payload = parse_snort_log_line(line, snort_rules)
 
         if not payload:
             continue
 
+        event_dedupe_hash = build_event_dedupe_hash(payload)
+
+        if was_sent_hash(state, "sent_event_hashes", event_dedupe_hash):
+            print(
+                json.dumps(
+                    {
+                        "status": "skipped_duplicate",
+                        "engine": "snort",
+                        "queue": IDS_LOG_OUTPUT_QUEUE,
+                        "dedupe_hash": event_dedupe_hash,
+                    },
+                    ensure_ascii=False,
+                ),
+                flush=True,
+            )
+            continue
+
         publisher.publish(payload)
-        remember_sent(state, h)
+
+        remember_sent_hash(state, "sent_event_hashes", event_dedupe_hash)
+        save_state(state)
 
         print(
             json.dumps(
@@ -444,6 +534,7 @@ def process_snort_logs(
                     "status": "published",
                     "engine": "snort",
                     "queue": IDS_LOG_OUTPUT_QUEUE,
+                    "dedupe_hash": event_dedupe_hash,
                     "payload": payload,
                 },
                 ensure_ascii=False,
@@ -460,18 +551,32 @@ def process_yara_logs(
     lines = read_new_lines(YARA_LOG_FILE, state)
 
     for line in lines:
-        h = event_hash("yara", line)
-
-        if was_sent(state, h):
-            continue
-
         payload = parse_yara_log_line(line, yara_rules)
 
         if not payload:
             continue
 
+        event_dedupe_hash = build_event_dedupe_hash(payload)
+
+        if was_sent_hash(state, "sent_event_hashes", event_dedupe_hash):
+            print(
+                json.dumps(
+                    {
+                        "status": "skipped_duplicate",
+                        "engine": "yara",
+                        "queue": IDS_LOG_OUTPUT_QUEUE,
+                        "dedupe_hash": event_dedupe_hash,
+                    },
+                    ensure_ascii=False,
+                ),
+                flush=True,
+            )
+            continue
+
         publisher.publish(payload)
-        remember_sent(state, h)
+
+        remember_sent_hash(state, "sent_event_hashes", event_dedupe_hash)
+        save_state(state)
 
         print(
             json.dumps(
@@ -479,6 +584,7 @@ def process_yara_logs(
                     "status": "published",
                     "engine": "yara",
                     "queue": IDS_LOG_OUTPUT_QUEUE,
+                    "dedupe_hash": event_dedupe_hash,
                     "payload": payload,
                 },
                 ensure_ascii=False,

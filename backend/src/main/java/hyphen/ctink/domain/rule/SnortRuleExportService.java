@@ -1,5 +1,6 @@
 package hyphen.ctink.domain.rule;
 
+import hyphen.ctink.domain.indicator.enums.TrustLevel;
 import hyphen.ctink.domain.log.notification.NotificationLogRepository;
 import hyphen.ctink.domain.log.notification.entity.NotificationLog;
 import hyphen.ctink.domain.log.system.SystemLogRepository;
@@ -31,14 +32,14 @@ public class SnortRuleExportService {
     @Value("${snort.rule.path}")
     private String rulePath;
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 * * * *")
     @Transactional
     public void exportRules() throws IOException {
         List<DetectionRule> rules = detectionRuleRepository.findByRuleType(RuleType.SNORT);
 
         StringBuilder sb = new StringBuilder();
         for (DetectionRule rule : rules) {
-            if (rule.getRuleStatus() == RuleStatus.ACTIVE) {
+            if (rule.getRuleStatus() == RuleStatus.ACTIVE || rule.getTrustLevel() != TrustLevel.LOW) {
                 sb.append(rule.getRuleContent())
                         .append(System.lineSeparator())
                         .append("\n");
