@@ -10,35 +10,119 @@ import hashlib
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
+from urllib.parse import unquote, urlparse
 
 
-SNORT_ALERT_FILE = os.getenv("SNORT_ALERT_FILE", "/shared/snort_logs/alert")
-YARA_LOG_FILE = os.getenv("YARA_LOG_FILE", "/shared/yara_logs/yara_scan.log")
+def env_bool(name: str, default: bool) -> bool:
+    value = os.getenv(name)
 
-SNORT_RULE_FILE = os.getenv("SNORT_RULE_FILE", "/shared/snort_rules/local.rules")
-YARA_RULE_FILE = os.getenv("YARA_RULE_FILE", "/shared/yara_rules/ctink_rules.yar")
+    if value is None:
+        return default
 
-RABBITMQ_HOST = "141.164.37.213"
-RABBITMQ_PORT = 5672
-RABBITMQ_USERNAME = "admin"
-RABBITMQ_PASSWORD = "StrongPassword123!"
-IDS_LOG_OUTPUT_QUEUE = "log.result.queue"
+    return value.strip().lower() in {"1", "true", "yes", "y", "on"}
 
-POLL_INTERVAL_SEC = float(os.getenv("IDS_LOG_POLL_INTERVAL_SEC", "2"))
 
+def env_int(name: str, default: int) -> int:
+    value = os.getenv(name)
+
+    if value is None or not value.strip():
+        return default
+
+    try:
+        return int(value)
+    except ValueError as exc:
+        raise SystemExit(f"{name} must be an integer: {value!r}") from exc
+
+
+def env_float(name: str, default: float) -> float:
+    value = os.getenv(name)
+
+    if value is None or not value.strip():
+        return default
+
+    try:
+        return float(value)
+    except ValueError as exc:
+        raise SystemExit(f"{name} must be a number: {value!r}") from exc
+
+
+# Log and rule paths
+SNORT_ALERT_FILE = os.getenv("SNORT_ALERT_FILE", "/shared/logs/snort/alert")
+YARA_LOG_FILE = os.getenv("YARA_LOG_FILE", "/shared/logs/yara/yara_scan.log")
+SNORT_RULE_FILE = os.getenv("SNORT_RULE_FILE", "/shared/rules/snort/local.rules")
+YARA_RULE_FILE = os.getenv("YARA_RULE_FILE", "/shared/rules/yara/ctink_rules.yar")
 STATE_FILE = os.getenv(
     "IDS_LOG_FORWARDER_STATE_FILE",
     "/shared/logs/snort/.ids_log_forwarder_state.json",
 )
 
-SEND_UNMATCHED = os.getenv("IDS_LOG_SEND_UNMATCHED", "true").lower() in {
-    "1",
-    "true",
-    "yes",
-    "y",
-}
+# RabbitMQ connection
+# RABBITMQ_URL takes precedence when both URL and individual variables are set.
+RABBITMQ_URL = os.getenv("RABBITMQ_URL", "").strip()
+RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "").strip()
+RABBITMQ_PORT = env_int("RABBITMQ_PORT", 5672)
+RABBITMQ_USERNAME = os.getenv("RABBITMQ_USERNAME", "").strip()
+RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", "")
+RABBITMQ_VHOST = os.getenv("RABBITMQ_VHOST", "/")
+RABBITMQ_HEARTBEAT = env_int("RABBITMQ_HEARTBEAT", 60)
+RABBITMQ_BLOCKED_CONNECTION_TIMEOUT_SEC = env_float(
+    "RABBITMQ_BLOCKED_CONNECTION_TIMEOUT_SEC",
+    30.0,
+)
+IDS_LOG_OUTPUT_QUEUE = os.getenv(
+    "IDS_LOG_OUTPUT_QUEUE",
+    "log.result.queue",
+).strip()
 
-MAX_SENT_HASHES = int(os.getenv("IDS_LOG_MAX_SENT_HASHES", "5000"))
+# Forwarder behavior
+POLL_INTERVAL_SEC = env_float("IDS_LOG_POLL_INTERVAL_SEC", 2.0)
+ERROR_RETRY_INTERVAL_SEC = env_float("IDS_LOG_ERROR_RETRY_INTERVAL_SEC", 5.0)
+SEND_UNMATCHED = env_bool("IDS_LOG_SEND_UNMATCHED", True)
+MAX_SENT_HASHES = env_int("IDS_LOG_MAX_SENT_HASHES", 5000)
+
+
+def validate_configuration() -> None:
+    if not IDS_LOG_OUTPUT_QUEUE:
+        raise SystemExit("IDS_LOG_OUTPUT_QUEUE must not be empty")
+
+    if RABBITMQ_URL:
+        return
+
+    missing = []
+
+    if not RABBITMQ_HOST:
+        missing.append("RABBITMQ_HOST")
+    if not RABBITMQ_USERNAME:
+        missing.append("RABBITMQ_USERNAME")
+    if not RABBITMQ_PASSWORD:
+        missing.append("RABBITMQ_PASSWORD")
+
+    if missing:
+        names = ", ".join(missing)
+        raise SystemExit(
+            "Set RABBITMQ_URL, or set all required individual variables: " + names
+        )
+
+
+def rabbitmq_public_config() -> Dict[str, Any]:
+    if RABBITMQ_URL:
+        parsed = urlparse(RABBITMQ_URL)
+        default_port = 5671 if parsed.scheme == "amqps" else 5672
+        encoded_vhost = parsed.path.lstrip("/")
+        public_vhost = unquote(encoded_vhost) if encoded_vhost else "/"
+        return {
+            "connection_mode": "url",
+            "rabbitmq_host": parsed.hostname,
+            "rabbitmq_port": parsed.port or default_port,
+            "rabbitmq_vhost": public_vhost,
+        }
+
+    return {
+        "connection_mode": "individual_variables",
+        "rabbitmq_host": RABBITMQ_HOST,
+        "rabbitmq_port": RABBITMQ_PORT,
+        "rabbitmq_vhost": RABBITMQ_VHOST,
+    }
 
 
 SNORT_LOG_RE = re.compile(
@@ -83,7 +167,6 @@ def format_detected_at(value: Any) -> str:
         text = text[:-1]
 
     text = re.sub(r"([+-]\d{2}:\d{2})$", "", text)
-
     return text
 
 
@@ -108,7 +191,6 @@ def load_state() -> Dict[str, Any]:
         state.setdefault("buffers", {})
         state.setdefault("sent_hashes", [])
         state.setdefault("sent_event_hashes", [])
-
         return state
 
     except Exception:
@@ -340,6 +422,50 @@ def snort_action_to_result(action: Optional[str]) -> str:
     return "ALERT"
 
 
+def escape_snort_text(value: Any) -> str:
+    return str(value or "").replace("\\", "\\\\").replace('"', '\\"')
+
+
+def snort_endpoint(ip: str, port: Optional[int]) -> str:
+    return f"{ip or 'any'} {port if port is not None else 'any'}"
+
+
+def build_fallback_snort_rule(
+    match: re.Match,
+    src_ip: str,
+    src_port: Optional[int],
+    dst_ip: str,
+    dst_port: Optional[int],
+) -> str:
+    protocol = str(match.group("protocol") or "ip").lower()
+    msg = escape_snort_text(match.group("msg"))
+    sid = match.group("sid")
+    rev = match.group("rev")
+
+    return (
+        f'alert {protocol} '
+        f'{snort_endpoint(src_ip, src_port)} -> {snort_endpoint(dst_ip, dst_port)} '
+        f'(msg:"{msg}"; sid:{sid}; rev:{rev};)'
+    )
+
+
+def safe_yara_rule_name(value: str) -> str:
+    name = re.sub(r"[^A-Za-z0-9_]", "_", value or "").strip("_")
+
+    if not name:
+        name = "CTINK_YARA_UNMATCHED"
+
+    if not re.match(r"^[A-Za-z_]", name):
+        name = f"CTINK_{name}"
+
+    return name
+
+
+def build_fallback_yara_rule(rule_name: str) -> str:
+    safe_name = safe_yara_rule_name(rule_name)
+    return f"rule {safe_name} {{ condition: true }}"
+
+
 def parse_snort_log_line(
     line: str,
     snort_rules: Dict[str, Dict[str, str]],
@@ -360,7 +486,15 @@ def parse_snort_log_line(
 
     detected_at = parse_snort_time(match.group("ts"))
     action = rule_info.get("action") if rule_info else None
-    rule_content = rule_info.get("rule_content") if rule_info else ""
+
+    rule_content = (
+        rule_info.get("rule_content")
+        if rule_info
+        else build_fallback_snort_rule(match, src_ip, src_port, dst_ip, dst_port)
+    )
+
+    if not rule_content:
+        rule_content = build_fallback_snort_rule(match, src_ip, src_port, dst_ip, dst_port)
 
     detail_obj = {
         "engine": "snort",
@@ -409,7 +543,7 @@ def parse_yara_log_line(
     if not rule_name:
         return None
 
-    rule_content = yara_rules.get(rule_name, "")
+    rule_content = yara_rules.get(rule_name, "") or build_fallback_yara_rule(rule_name)
 
     if not rule_content and not SEND_UNMATCHED:
         return None
@@ -424,7 +558,7 @@ def parse_yara_log_line(
         "rule_file": obj.get("rule_file"),
         "scan_target": obj.get("scan_target"),
         "raw_log": line,
-        "matched_rule": bool(rule_content),
+        "matched_rule": bool(yara_rules.get(rule_name, "")),
     }
 
     return {
@@ -443,18 +577,28 @@ class MqPublisher:
     def connect(self) -> None:
         import pika
 
-        credentials = pika.PlainCredentials(
-            RABBITMQ_USERNAME,
-            RABBITMQ_PASSWORD,
-        )
+        if RABBITMQ_URL:
+            params = pika.URLParameters(RABBITMQ_URL)
+            params.heartbeat = RABBITMQ_HEARTBEAT
+            params.blocked_connection_timeout = (
+                RABBITMQ_BLOCKED_CONNECTION_TIMEOUT_SEC
+            )
+        else:
+            credentials = pika.PlainCredentials(
+                RABBITMQ_USERNAME,
+                RABBITMQ_PASSWORD,
+            )
 
-        params = pika.ConnectionParameters(
-            host=RABBITMQ_HOST,
-            port=RABBITMQ_PORT,
-            credentials=credentials,
-            heartbeat=60,
-            blocked_connection_timeout=30,
-        )
+            params = pika.ConnectionParameters(
+                host=RABBITMQ_HOST,
+                port=RABBITMQ_PORT,
+                virtual_host=RABBITMQ_VHOST,
+                credentials=credentials,
+                heartbeat=RABBITMQ_HEARTBEAT,
+                blocked_connection_timeout=(
+                    RABBITMQ_BLOCKED_CONNECTION_TIMEOUT_SEC
+                ),
+            )
 
         self.connection = pika.BlockingConnection(params)
         self.channel = self.connection.channel()
@@ -599,22 +743,23 @@ def main() -> None:
     except ImportError:
         raise SystemExit("pika is not installed. Install with: pip install pika")
 
+    validate_configuration()
+
+    startup_info = {
+        "status": "ids_log_forwarder_started",
+        "snort_alert_file": SNORT_ALERT_FILE,
+        "yara_log_file": YARA_LOG_FILE,
+        "snort_rule_file": SNORT_RULE_FILE,
+        "yara_rule_file": YARA_RULE_FILE,
+        "output_queue": IDS_LOG_OUTPUT_QUEUE,
+        "poll_interval_sec": POLL_INTERVAL_SEC,
+        "error_retry_interval_sec": ERROR_RETRY_INTERVAL_SEC,
+        "state_file": STATE_FILE,
+    }
+    startup_info.update(rabbitmq_public_config())
+
     print(
-        json.dumps(
-            {
-                "status": "ids_log_forwarder_started",
-                "snort_alert_file": SNORT_ALERT_FILE,
-                "yara_log_file": YARA_LOG_FILE,
-                "snort_rule_file": SNORT_RULE_FILE,
-                "yara_rule_file": YARA_RULE_FILE,
-                "rabbitmq_host": RABBITMQ_HOST,
-                "rabbitmq_port": RABBITMQ_PORT,
-                "output_queue": IDS_LOG_OUTPUT_QUEUE,
-                "poll_interval_sec": POLL_INTERVAL_SEC,
-                "state_file": STATE_FILE,
-            },
-            ensure_ascii=False,
-        ),
+        json.dumps(startup_info, ensure_ascii=False),
         flush=True,
     )
 
@@ -652,7 +797,7 @@ def main() -> None:
             except Exception:
                 pass
 
-            time.sleep(5)
+            time.sleep(ERROR_RETRY_INTERVAL_SEC)
 
     publisher.close()
 
