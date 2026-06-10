@@ -185,8 +185,8 @@ export default function RulePage() {
       if (filterRuleType) params.ruleType   = filterRuleType; // 예: 'SNORT'
       if (filterTrust)    params.trustLevel = filterTrust;    // 예: 'HIGH'
       if (filterStatus)   params.status      = filterStatus;   // 예: 'ACTIVE'
-      if (dateFrom)       params.dateFrom   = dateFrom;
-      if (dateTo)         params.dateTo     = dateTo;
+      if (dateFrom) params.dateFrom = dateFrom + 'T00:00:00';
+      if (dateTo)   params.dateTo   = dateTo   + 'T23:59:59';
       const { data } = await api.get('/ctink/rules', { params, signal });
       setRules(data.rules);
       setTotalCount(data.total_count);

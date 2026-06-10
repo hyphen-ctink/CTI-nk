@@ -197,8 +197,8 @@ export default function IdsLogPage() {
             page:        currentPage,
             attackType: idsAttackType || undefined,
             result:      idsResult     || undefined,
-            dateFrom:   idsDateFrom   || undefined,
-            dateTo:     idsDateTo     || undefined,
+            dateFrom: idsDateFrom ? `${idsDateFrom}T00:00:00` : undefined,
+            dateTo:   idsDateTo   ? `${idsDateTo}T23:59:59`   : undefined,
           },
         });
         if (cancelled) return;

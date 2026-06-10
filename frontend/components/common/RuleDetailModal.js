@@ -371,7 +371,7 @@ export default function RuleDetailModal({ ruleId, ruleName, onClose }) {
                 <VerifyRow label="3차 · 오탐 검증" pass={fpPass} />
                 <div style={{ marginTop: '12px', padding: '8px 10px', backgroundColor: 'rgba(63,114,175,0.07)', borderRadius: '8px' }}>
                   <p style={{ fontSize: '11px', color: 'var(--ctink-text-muted)', fontWeight: 600, marginBottom: '3px' }}>에이전트 판단 근거</p>
-                  <p style={{ fontSize: '12px', color: 'var(--ctink-text)', lineHeight: 1.6 }}>'Rule meets detection policy standards. No structural or semantic issues identified.'</p>
+                  <p style={{ fontSize: '12px', color: 'var(--ctink-text)', lineHeight: 1.6 }}>{tr?.agent_judgement ?? '-'}</p>
                 </div>
                 <p style={{ marginTop: '10px', fontSize: '12px', color: 'var(--ctink-text-muted)' }}>
                   재생성 횟수 <strong style={{ color: 'var(--ctink-accent)' }}>{tr?.regen_count ?? 0}</strong>
