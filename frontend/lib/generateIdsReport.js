@@ -358,7 +358,7 @@ function PdfBarChart({ data }) {
 // 요일별 탐지 추이 라인 차트 (조회 주간: 실선, 비교 주간: 점선)
 function PdfLineChart({ thisWeek, prevWeek }) {
   const days = ['월', '화', '수', '목', '금', '토', '일'];
-  const W = 511, H = 174;
+  const W = 511, H = 160;
   const mTop = 12, mRight = 24, mBottom = 46, mLeft = 32;
   const cW = W - mLeft - mRight, cH = H - mTop - mBottom;
   const tw = thisWeek ?? days.map(() => ({ count: 0 }));

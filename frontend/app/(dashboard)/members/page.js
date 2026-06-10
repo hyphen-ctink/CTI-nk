@@ -762,7 +762,7 @@ export default function MembersPage() {
   return (
     <div style={{ padding: '32px' }}>
       <h1 style={{ fontSize: '27px', fontWeight: 800, color: 'var(--ctink-text)', marginBottom: '24px' }}>
-        Admin
+        Members
       </h1>
 
       {/* 신규 가입자 승인 요청 */}
